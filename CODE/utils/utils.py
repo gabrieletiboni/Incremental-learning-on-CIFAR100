@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import sys
 
 
-def getImagesFromLabels(dataset, labels):
+def get_indexes_from_labels(dataset, labels):
 
 	targets = dataset.targets
 	indexes = []
