@@ -199,8 +199,8 @@ def eval_model(net, eval_dataloader, dataset_length, device, display=True, suffi
 	cum_loss_eval = 0
 
 	for images_eval, labels_eval in eval_dataloader:
-	    images_eval = images_eval.to(DEVICE)
-	    labels_eval = labels_eval.to(DEVICE)
+	    images_eval = images_eval.to(device)
+	    labels_eval = labels_eval.to(device)
 
 	    # Forward Pass
 	    outputs_eval = net(images_eval)
@@ -229,8 +229,8 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 	running_corrects_train = 0
 
 	for images_train, labels_train in dataloader:
-	    images_train = images_train.to(DEVICE)
-	    labels_train = labels_train.to(DEVICE)
+	    images_train = images_train.to(device)
+	    labels_train = labels_train.to(device)
 
 	    # Forward Pass
 	    outputs_train = net(images_train)
