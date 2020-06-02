@@ -5,6 +5,10 @@ import datetime
 import sys
 import pandas as pd
 
+from google.colab import auth
+import gspread
+from oauth2client.client import GoogleCredentials
+
 
 def get_indexes_from_labels(dataset, labels):
 
@@ -244,4 +248,26 @@ def eval_model_accuracy(net, dataloader, dataset_length, display=True, suffix=''
 		print('Accuracy on train'+str(suffix)+':', accuracy_train)
 
 	return accuracy_train
+
+def dump_on_gspreadsheet(path, link, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
+	
+	auth.authenticate_user()
+	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	
+	# Open
+	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
+
+	# select worksheet
+	worksheet = sheet.worksheet('Foglio1')
+
+	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
+	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
+	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
+	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
+	values = [path, link, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
+
+	# Update with new values
+	worksheet.append_row(values, value_input_option='USER_ENTERED')
+
+	return
 
