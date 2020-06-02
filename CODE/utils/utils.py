@@ -249,7 +249,7 @@ def eval_model_accuracy(net, dataloader, dataset_length, display=True, suffix=''
 
 	return accuracy_train
 
-def dump_on_gspreadsheet(path, link, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
+def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
 	auth.authenticate_user()
 	gc = gspread.authorize(GoogleCredentials.get_application_default())
@@ -264,7 +264,7 @@ def dump_on_gspreadsheet(path, link, losses_train, losses_eval, accuracies_train
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
-	values = [path, link, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
+	values = [path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
