@@ -192,7 +192,7 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
-def eval_model(net, eval_dataloader, dataset_length, device, display=True, suffix=''):
+def eval_model(net, eval_dataloader, criterion, dataset_length, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects_eval = 0
@@ -205,7 +205,7 @@ def eval_model(net, eval_dataloader, dataset_length, device, display=True, suffi
 	    # Forward Pass
 	    outputs_eval = net(images_eval)
 
-	    cum_loss_eval += criterion_eval(outputs_eval, labels_eval).item()
+	    cum_loss_eval += criterion(outputs_eval, labels_eval).item()
 
 	    # Get predictions
 	    _, preds = torch.max(outputs_eval.data, 1)
