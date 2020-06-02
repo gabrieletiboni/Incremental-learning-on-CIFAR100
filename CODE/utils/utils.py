@@ -9,6 +9,8 @@ from google.colab import auth
 import gspread
 from oauth2client.client import GoogleCredentials
 
+import torch
+
 
 def get_indexes_from_labels(dataset, labels):
 
