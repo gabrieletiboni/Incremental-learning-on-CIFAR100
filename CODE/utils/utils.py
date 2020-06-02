@@ -128,6 +128,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	plt.grid(alpha=0.3)
 	if print_img:
 		plt.show()
+	plt.close();
 
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
@@ -149,6 +150,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	plt.grid(alpha=0.3)
 	if print_img:
 		plt.show()
+	plt.close();
 
 	# Save figures
 	if save:
