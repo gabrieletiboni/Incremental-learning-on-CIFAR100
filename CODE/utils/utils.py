@@ -192,7 +192,7 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
-def eval_model(net, eval_dataloader, dataset_length, display=True, suffix=''):
+def eval_model(net, eval_dataloader, dataset_length, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects_eval = 0
@@ -223,7 +223,7 @@ def eval_model(net, eval_dataloader, dataset_length, display=True, suffix=''):
 
 	return loss_eval, accuracy_eval
 
-def eval_model_accuracy(net, dataloader, dataset_length, display=True, suffix=''):
+def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects_train = 0
