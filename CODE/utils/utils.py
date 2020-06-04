@@ -294,7 +294,7 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 			for i in range(batch_size):
 				targets_bce[i][labels_eval[i]] = 1
 
-			targets_bce = targets_bce.to(DEVICE)
+			targets_bce = targets_bce.to(device)
 
 			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], targets_bce).item()
 		else:
