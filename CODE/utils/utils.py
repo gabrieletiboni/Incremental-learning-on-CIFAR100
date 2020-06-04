@@ -240,6 +240,9 @@ def dump_to_csv(losses_train, losses_eval, accuracies_train, accuracies_eval, gr
 		print('FATAL ERROR - Dare un path come parametro al dump_to_csv')
 		sys.exit()
 
+	if len(losses_eval) < len(losses_train):
+		return
+
 	if len(accuracies_train) < len(accuracies_eval):
 		df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval})
 	else:
