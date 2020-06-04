@@ -108,6 +108,9 @@ def compute_mean_and_std():
 	print("Stds = [{:.4f}, {:.4f}, {:.4f}]".format(std_1.item(), std_2.item(), std_3.item()))
 
 def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, num_epochs, use_validation=True, print_img=False, save=False, path=None, group_number=None):
+	if len(losses_eval) < num_epochs:
+		return
+
 	if use_validation:
 		text1 = 'Validation loss'
 		text2 = 'Validation accuracy'
