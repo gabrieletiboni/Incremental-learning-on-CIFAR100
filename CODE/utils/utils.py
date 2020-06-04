@@ -242,9 +242,9 @@ def dump_to_csv(losses_train, losses_eval, accuracies_train, accuracies_eval, gr
 	df.to_csv(path+'/group_'+str(group_number)+'/values.csv', encoding='utf-8', index=False)
 
 
-def dump_hyperparameters(path, lr, weight_decay, step_size, num_epochs, method, batch_size):
+def dump_hyperparameters(path, lr, weight_decay, num_epochs, method, batch_size):
 
-	df = pd.DataFrame({'Method': [method], 'LR': [lr], 'num_epochs': [num_epochs], 'step_size': [step_size], 'batch_size': [batch_size], 'weight_decay': [weight_decay]})
+	df = pd.DataFrame({'Method': [method], 'LR': [lr], 'num_epochs': [num_epochs], 'batch_size': [batch_size], 'weight_decay': [weight_decay]})
 
 	df.to_csv(path+'/hyperparameters.csv', encoding='utf-8', index=False)
 
