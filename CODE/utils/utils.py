@@ -171,11 +171,12 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_tr
 		text2 = 'Test accuracy'
 
 	n_groups = len(group_losses_eval)
+	group_list = [(i+1)*10 for i in range(n_groups)]
 
 	fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
-	ax.plot(n_groups, group_losses_train, linestyle='-', marker='o', label='Training loss')
-	ax.plot(n_groups, group_losses_eval, linestyle='-', marker='o', label=text1)
+	ax.plot(group_list, group_losses_train, linestyle='-', marker='o', label='Training loss')
+	ax.plot(group_list, group_losses_eval, linestyle='-', marker='o', label=text1)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
@@ -191,8 +192,8 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_tr
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
-	ax.plot(n_groups, group_accuracies_train, color='#7B1FA2', linestyle='-', marker='o', label='Training accuracy')
-	ax.plot(n_groups, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+	ax.plot(group_list, group_accuracies_train, color='#7B1FA2', linestyle='-', marker='o', label='Training accuracy')
+	ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Accuracy', labelpad=12, rotation=90, fontweight='bold')
