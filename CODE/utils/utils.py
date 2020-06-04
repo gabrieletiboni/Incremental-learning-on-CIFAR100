@@ -265,7 +265,7 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 		print('FATAL ERROR - Dare un path come parametro al dump_final_values')
 		sys.exit()
 
-	if len(accuracies_eval_curr) < len(accuracy_eval):
+	if len(accuracies_eval_curr) < len(accuracies_eval):
 		# JOINT TRAINING
 		df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_train': accuracies_train})
 	else:
