@@ -9,6 +9,7 @@ import pandas as pd
 import gspread
 # from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
+from google.colab import output
 
 import torch
 import os
@@ -336,7 +337,7 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 # 	return
 
-def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, duration, use_validation, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -352,9 +353,13 @@ def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuraci
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
-	values = [path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
+	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
 
 	return
+
+def beep():
+	# Play an audio beep. Any audio URL will do.
+	output.eval_js('new Audio("https://upload.wikimedia.org/wikipedia/commons/0/05/Beep-09.ogg").play()')
