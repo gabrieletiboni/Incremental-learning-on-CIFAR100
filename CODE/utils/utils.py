@@ -292,7 +292,7 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 		if use_bce_loss:
 			targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
 			for i in range(batch_size):
-				targets_bce[i][labels[i]] = 1
+				targets_bce[i][labels_eval[i]] = 1
 
 			targets_bce = targets_bce.to(DEVICE)
 
