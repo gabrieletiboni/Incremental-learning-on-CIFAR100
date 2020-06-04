@@ -345,7 +345,7 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 # 	return
 
-def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -357,12 +357,21 @@ def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuraci
 	# select worksheet
 	worksheet = sheet.worksheet('Foglio1')
 
+	if user == 0:
+		user_name = 'Roberto'
+	elif user == 1:
+		user_name = 'Alessandro'
+	elif user == 2:
+		user_name = 'Gabriele'
+	else:
+		raise (Runtime('Dare uno user a dump_on_gspreadsheet che sia valido'))
+
 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
+	values = [path, link, user_name, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
