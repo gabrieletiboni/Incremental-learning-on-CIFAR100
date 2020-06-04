@@ -289,7 +289,7 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 
 	    batch_size = len(outputs_eval)
 
-	    if use_bce_loss:
+		if use_bce_loss:
 			targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
 			for i in range(batch_size):
 				targets_bce[i][labels[i]] = 1
@@ -297,9 +297,9 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 			targets_bce = targets_bce.to(DEVICE)
 
 			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], targets_bce).item()
-	    else:
-	    	# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
-	    	cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
+		else:
+			# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
+			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
 
 	    # Get predictions
 	    _, preds = torch.max(outputs_eval.data, 1)
