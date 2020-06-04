@@ -281,13 +281,13 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 	cum_loss_eval = 0
 
 	for images_eval, labels_eval in eval_dataloader:
-	    images_eval = images_eval.to(device)
-	    labels_eval = labels_eval.to(device)
+		images_eval = images_eval.to(device)
+		labels_eval = labels_eval.to(device)
 
-	    # Forward Pass
-	    outputs_eval = net(images_eval)
+		# Forward Pass
+		outputs_eval = net(images_eval)
 
-	    batch_size = len(outputs_eval)
+		batch_size = len(outputs_eval)
 
 		if use_bce_loss:
 			targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
@@ -301,11 +301,11 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 			# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
 			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
 
-	    # Get predictions
-	    _, preds = torch.max(outputs_eval.data, 1)
+		# Get predictions
+		_, preds = torch.max(outputs_eval.data, 1)
 
-	    # Update Corrects
-	    running_corrects_eval += torch.sum(preds == labels_eval.data).data.item()
+		# Update Corrects
+		running_corrects_eval += torch.sum(preds == labels_eval.data).data.item()
 
 	# Calculate Accuracy
 	accuracy_eval = running_corrects_eval / float(dataset_length)
