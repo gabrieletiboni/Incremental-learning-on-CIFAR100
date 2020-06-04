@@ -182,6 +182,8 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_tr
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
 
+	ax.set_xticks(group_list)
+
 	# ax.set_title('Incremental', pad=20, fontweight='bold')
 
 	ax.legend()
@@ -248,6 +250,9 @@ def dump_hyperparameters(path, lr, weight_decay, num_epochs, method, batch_size)
 	df = pd.DataFrame({'Method': [method], 'LR': [lr], 'num_epochs': [num_epochs], 'batch_size': [batch_size], 'weight_decay': [weight_decay]})
 
 	df.to_csv(path+'/hyperparameters.csv', encoding='utf-8', index=False)
+
+def get_hyperparameter_string(lr, weight_decay, num_epochs, batch_size, multilrstep, gamma):
+	return 'LR='+str(lr)+', weight_decay='+str(weight_decay)+', num_epochs='+str(num_epochs)+', batch_size='+str(batch_size)+', multilrstep='+str(multilrstep)+', gamma='+str(gamma)
 
 def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_eval, path=None):
 	if path == None:
@@ -353,7 +358,7 @@ def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuraci
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
-	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
+	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
