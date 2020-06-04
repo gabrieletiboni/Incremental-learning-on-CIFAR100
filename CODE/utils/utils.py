@@ -163,13 +163,13 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 		fig1.savefig(path+'/group_'+str(group_number)+'/loss.png')
 		fig2.savefig(path+'/group_'+str(group_number)+'/accuracy.png')
 
-def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_train, group_accuracies_eval, use_validation=True, print_img=False, save=True, path=None):
+def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_eval_curr, group_accuracies_eval, use_validation=True, print_img=False, save=True, path=None):
 	if use_validation:
 		text1 = 'Validation loss'
-		text2 = 'Validation accuracy'
+		text2 = 'Validation accuracy on all classes'
 	else:
 		text1 = 'Test loss'
-		text2 = 'Test accuracy'
+		text2 = 'Test accuracy on all classes'
 
 	n_groups = len(group_losses_eval)
 	group_list = [(i+1)*10 for i in range(n_groups)]
@@ -195,7 +195,7 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_tr
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
-	ax.plot(group_list, group_accuracies_train, color='#7B1FA2', linestyle='-', marker='o', label='Training accuracy')
+	ax.plot(group_list, group_accuracies_eval_curr, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy on novel classes')
 	ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
@@ -254,12 +254,12 @@ def dump_hyperparameters(path, lr, weight_decay, num_epochs, method, batch_size)
 def get_hyperparameter_string(lr, weight_decay, num_epochs, batch_size, multilrstep, gamma):
 	return 'LR='+str(lr)+', weight_decay='+str(weight_decay)+', num_epochs='+str(num_epochs)+', batch_size='+str(batch_size)+', multilrstep='+str(multilrstep)+', gamma='+str(gamma)
 
-def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_eval, path=None):
+def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, path=None):
 	if path == None:
 		print('FATAL ERROR - Dare un path come parametro al dump_final_values')
 		sys.exit()
 
-	df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_train': accuracies_train})
+	df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_eval_curr': accuracies_eval_curr, 'accuracies_train': accuracies_train})
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
@@ -297,28 +297,28 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, device, display=
 def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, suffix=''):
 	net.train(False)
 
-	running_corrects_train = 0
+	running_corrects = 0
 
-	for images_train, labels_train in dataloader:
-	    images_train = images_train.to(device)
-	    labels_train = labels_train.to(device)
+	for images, labels in dataloader:
+	    images = images.to(device)
+	    labels = labels.to(device)
 
 	    # Forward Pass
-	    outputs_train = net(images_train)
+	    outputs = net(images)
 
 	    # Get predictions
-	    _, preds = torch.max(outputs_train.data, 1)
+	    _, preds = torch.max(outputs.data, 1)
 
 	    # Update Corrects
-	    running_corrects_train += torch.sum(preds == labels_train.data).data.item()
+	    running_corrects += torch.sum(preds == labels.data).data.item()
 
 	# Calculate Accuracy
-	accuracy_train = running_corrects_train / float(dataset_length)
+	accuracy = running_corrects / float(dataset_length)
 
 	if display:
-		print('Accuracy on train'+str(suffix)+':', accuracy_train)
+		print('Accuracy on '+str(suffix)+':', accuracy)
 
-	return accuracy_train
+	return accuracy
 
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
@@ -342,7 +342,7 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 # 	return
 
-def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, duration, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -358,7 +358,8 @@ def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuraci
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
-	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, str(hyperparameters)]
+	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
+	values = [path, link, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
