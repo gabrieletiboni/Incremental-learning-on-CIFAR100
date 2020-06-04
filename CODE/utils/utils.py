@@ -265,15 +265,16 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 		print('FATAL ERROR - Dare un path come parametro al dump_final_values')
 		sys.exit()
 
-	# JOINT TRAINING
 	if len(accuracies_eval_curr) < len(accuracy_eval):
+		# JOINT TRAINING
 		df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_train': accuracies_train})
 	else:
+		# NO JOINT TRAINING
 		df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_eval_curr': accuracies_eval_curr, 'accuracies_train': accuracies_train})
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
-def eval_model(net, eval_dataloader, criterion, dataset_length, device, display=True, suffix=''):
+def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, ending_label, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects_eval = 0
@@ -286,7 +287,19 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, device, display=
 	    # Forward Pass
 	    outputs_eval = net(images_eval)
 
-	    cum_loss_eval += criterion(outputs_eval, labels_eval).item()
+	    batch_size = len(outputs_eval)
+
+	    if use_bce_loss:
+			targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
+			for i in range(batch_size):
+				targets_bce[i][labels[i]] = 1
+
+			targets_bce = targets_bce.to(DEVICE)
+
+			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], targets_bce).item()
+	    else:
+	    	# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
+	    	cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
 
 	    # Get predictions
 	    _, preds = torch.max(outputs_eval.data, 1)
