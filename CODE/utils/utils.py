@@ -5,9 +5,10 @@ import datetime
 import sys
 import pandas as pd
 
-from google.colab import auth
+# from google.colab import auth
 import gspread
-from oauth2client.client import GoogleCredentials
+# from oauth2client.client import GoogleCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 
 import torch
 import os
@@ -120,7 +121,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	ax.plot(epochs, losses_eval, linestyle='-', marker='o', label=text1)
 
 	ax.set_xlabel('Epochs', labelpad=12, fontweight='bold')
-	ax.set_ylabel('CrossEntropy Loss', labelpad=12, rotation=90, fontweight='bold')
+	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
 
 	ax.set_title('Loss during gradient descent', pad=20, fontweight='bold')
 
@@ -160,6 +161,61 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 
 		fig1.savefig(path+'/group_'+str(group_number)+'/loss.png')
 		fig2.savefig(path+'/group_'+str(group_number)+'/accuracy.png')
+
+def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_train, group_accuracies_eval, use_validation=True, print_img=False, save=True, path=None):
+	if use_validation:
+		text1 = 'Validation loss'
+		text2 = 'Validation accuracy'
+	else:
+		text1 = 'Test loss'
+		text2 = 'Test accuracy'
+
+	n_groups = len(group_losses_eval)
+
+	fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
+
+	ax.plot(n_groups, group_losses_train, linestyle='-', marker='o', label='Training loss')
+	ax.plot(n_groups, group_losses_eval, linestyle='-', marker='o', label=text1)
+
+	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
+	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
+
+	# ax.set_title('Incremental', pad=20, fontweight='bold')
+
+	ax.legend()
+	plt.grid(alpha=0.3)
+	if print_img:
+		plt.show()
+	plt.close();
+
+	# Plot accuracies
+	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
+
+	ax.plot(n_groups, group_accuracies_train, color='#7B1FA2', linestyle='-', marker='o', label='Training accuracy')
+	ax.plot(n_groups, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+
+	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
+	ax.set_ylabel('Accuracy', labelpad=12, rotation=90, fontweight='bold')
+
+	# ax.set_title('Accuracy', pad=20, fontweight='bold')
+
+	ax.legend()
+	plt.grid(alpha=0.3)
+	if print_img:
+		plt.show()
+	plt.close();
+
+	# Save figures
+	if save:
+		if path == None:
+			print('FATAL ERROR - Dare un path come parametro al draw_final_graphs')
+			sys.exit()
+
+		fig1.savefig(path+'/group_loss.png')
+		fig2.savefig(path+'/group_accuracy.png')
+
+	return
+
 
 def create_dir_for_current_group(group_number, path=None):
 	if path == None:
@@ -226,8 +282,8 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, device, display=
 	loss_eval = cum_loss_eval / float(dataset_length)
 	
 	if display:
-		print('Loss on val'+str(suffix)+':', loss_eval)
-		print('Accuracy on val'+str(suffix)+':', accuracy_eval)
+		print('Loss on eval'+str(suffix)+':', loss_eval)
+		print('Accuracy on eval'+str(suffix)+':', accuracy_eval)
 
 	return loss_eval, accuracy_eval
 
@@ -257,11 +313,34 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 	return accuracy_train
 
-def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
+# def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
-	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+# 	auth.authenticate_user()
+# 	gc = gspread.authorize(GoogleCredentials.get_application_default())
 	
+# 	# Open
+# 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
+
+# 	# select worksheet
+# 	worksheet = sheet.worksheet('Foglio1')
+
+# 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
+# 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
+# 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
+# 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
+# 	values = [path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
+
+# 	# Update with new values
+# 	worksheet.append_row(values, value_input_option='USER_ENTERED')
+
+# 	return
+
+def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None) :
+	scope = ['https://www.googleapis.com/auth/spreadsheets']
+	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
+
+	gc = gspread.authorize(credentials)
+
 	# Open
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
@@ -278,4 +357,3 @@ def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuraci
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
 
 	return
-
