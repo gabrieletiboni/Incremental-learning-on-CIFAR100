@@ -1,2 +1,0 @@
-Method,LR,num_epochs,batch_size,weight_decay
-Catastrophic,0.2,15,128,1e-05
