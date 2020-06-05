@@ -378,7 +378,7 @@ def display_conf_mat(conf_mat):
 	plt.show()
 	return 
 
-def get_conf_matrix(net, eval_dataloader, device, ending_label):
+def get_conf_matrix(net, eval_dataloader, ending_label, device):
 	net.train(False)
 	# flag 
 	FIRST = 0 
