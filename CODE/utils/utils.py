@@ -304,7 +304,7 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
 
 		# Get predictions
-		_, preds = torch.max(outputs_eval.data, 1)
+		_, preds = torch.max(outputs_eval[:, 0:ending_label].data, 1)
 
 		# Update Corrects
 		running_corrects_eval += torch.sum(preds == labels_eval.data).data.item()
@@ -319,7 +319,7 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 
 	return loss_eval, accuracy_eval
 
-def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, suffix=''):
+def eval_model_accuracy(net, dataloader, dataset_length, starting_label, ending_label, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects = 0
@@ -330,9 +330,9 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 	    # Forward Pass
 	    outputs = net(images)
-
+		
 	    # Get predictions
-	    _, preds = torch.max(outputs.data, 1)
+	    _, preds = torch.max(outputs[:,starting_label:ending_label].data, 1)
 
 	    # Update Corrects
 	    running_corrects += torch.sum(preds == labels.data).data.item()
