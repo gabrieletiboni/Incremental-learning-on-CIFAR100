@@ -411,7 +411,6 @@ def get_conf_matrix(net, eval_dataloader, ending_label, device):
 		if FIRST : 
 			y_pred = preds.detach().cpu().clone()
 			y_test = labels_eval.detach().cpu().clone()
-			print(y_test)
 			FIRST=False 
 		else: 
 			y_pred = torch.cat( (y_pred,preds.cpu()))
