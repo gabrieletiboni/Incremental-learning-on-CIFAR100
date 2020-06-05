@@ -397,25 +397,25 @@ def get_conf_matrix(net, eval_dataloader, ending_label, device):
 	y_test = None
 
 	for images_eval, labels_eval in eval_dataloader:
-	images_eval = images_eval.to(device)
-	labels_eval = labels_eval.to(device)
+		images_eval = images_eval.to(device)
+		labels_eval = labels_eval.to(device)
 
-	# Forward Pass
-	outputs_eval = net(images_eval)
-	outputs_eval = outputs_eval[:,:ending_label]
+		# Forward Pass
+		outputs_eval = net(images_eval)
+		outputs_eval = outputs_eval[:,:ending_label]
 
-	# Get predictions
-	_, preds = torch.max(outputs_eval.data, 1)
+		# Get predictions
+		_, preds = torch.max(outputs_eval.data, 1)
 
-	# concatenate predictions and labels
-	if FIRST : 
-		y_pred = preds.detach().cpu().clone()
-		y_test = labels_eval.detach().cpu().clone()
-		print(y_test)
-		FIRST=False 
-	else: 
-		y_pred = torch.cat( (y_pred,preds.cpu()))
-		y_test = torch.cat( (y_test,labels_eval.cpu()))
+		# concatenate predictions and labels
+		if FIRST : 
+			y_pred = preds.detach().cpu().clone()
+			y_test = labels_eval.detach().cpu().clone()
+			print(y_test)
+			FIRST=False 
+		else: 
+			y_pred = torch.cat( (y_pred,preds.cpu()))
+			y_test = torch.cat( (y_test,labels_eval.cpu()))
 
   return confusion_matrix(y_test, y_pred)
 
