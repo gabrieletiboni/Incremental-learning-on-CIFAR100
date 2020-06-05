@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 import datetime
@@ -345,19 +346,18 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 	return accuracy
 
 
-
 def display_conf_matrix(conf_mat,display=False,save=False,path=None):
 	n_classes = len(conf_mat)
 
 	ticks = [i-0.5 for i in range(n_classes)]
 
-	fig, ax = plt.subplots(nrows=1, ncols=1)
+	fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,8))
 
 	im = ax.imshow(conf_mat, interpolation='nearest', cmap=plt.cm.jet)
 
 	tick_strings = []
 	for i in range(n_classes):
-		if (i+1)%2 == 0:
+		if (i+1)%10 == 0:
 			tick_strings.append(str(i+1))
 		else:
 			tick_strings.append('')
@@ -370,10 +370,10 @@ def display_conf_matrix(conf_mat,display=False,save=False,path=None):
 	ax.yaxis.set_major_locator(ticker.IndexLocator(base=1, offset=0.5))
 	ax.xaxis.set_major_locator(ticker.IndexLocator(base=1, offset=0.5))
 
-	ax.tick_params(length=0)
+	ax.tick_params(length=0, labelsize='14')
 
-	ax.set_xlabel('Predicted class', labelpad=10, fontweight='bold')
-	ax.set_ylabel('True class', labelpad=30, rotation=0, fontweight='bold')
+	ax.set_xlabel('Predicted class', labelpad=14, fontsize='16')
+	ax.set_ylabel('True class', labelpad=14, rotation=90, fontsize='16')
 
 	if display: 
 		plt.show()
@@ -391,32 +391,33 @@ def display_conf_matrix(conf_mat,display=False,save=False,path=None):
 def get_conf_matrix(net, eval_dataloader, ending_label, device):
 	net.train(False)
 	# flag 
-	FIRST = 0 
+	FIRST = True 
 
 	y_pred = None
 	y_test = None
 
 	for images_eval, labels_eval in eval_dataloader:
-		images_eval = images_eval.to(device)
-		labels_eval = labels_eval.to(device)
+	images_eval = images_eval.to(device)
+	labels_eval = labels_eval.to(device)
 
-		# Forward Pass
-		outputs_eval = net(images_eval)
-		outputs_eval = outputs_eval[:,:ending_label]
+	# Forward Pass
+	outputs_eval = net(images_eval)
+	outputs_eval = outputs_eval[:,:ending_label]
 
-		# Get predictions
-		_, preds = torch.max(outputs_eval.data, 1)
+	# Get predictions
+	_, preds = torch.max(outputs_eval.data, 1)
 
-		# concatenate predictions and labels
-		if FIRST: 
-			y_pred = preds.clone()
-			y_test = labels_eval.clone()
-			FIRST+=1
-		else : 
-			y_pred = torch.cat( (y_pred,preds), dim=0)
-			y_test = torch.cat( (y_test,labels_eval), dim=0)
+	# concatenate predictions and labels
+	if FIRST : 
+		y_pred = preds.detach().cpu().clone()
+		y_test = labels_eval.detach().cpu().clone()
+		print(y_test)
+		FIRST=False 
+	else: 
+		y_pred = torch.cat( (y_pred,preds.cpu()))
+		y_test = torch.cat( (y_test,labels_eval.cpu()))
 
-	return confusion_matrix(y_test, y_pred)
+  return confusion_matrix(y_test, y_pred)
 
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
