@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 import datetime
 import sys
 import pandas as pd
@@ -14,7 +15,6 @@ from google.colab import output
 
 import torch
 import os
-
 
 def get_indexes_from_labels(dataset, labels):
 
@@ -343,6 +343,70 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 		print('Accuracy on '+str(suffix)+':', accuracy)
 
 	return accuracy
+
+
+
+def display_conf_mat(conf_mat):
+	n_classes = len(conf_mat)
+
+	ticks = [i-0.5 for i in range(n_classes)]
+
+	fig, ax = plt.subplots(nrows=1, ncols=1)
+
+	im = ax.imshow(conf_mat, interpolation='nearest', cmap=plt.cm.jet)
+
+	tick_strings = []
+	for i in range(n_classes):
+		if (i+1)%2 == 0:
+			tick_strings.append(str(i+1))
+		else:
+			tick_strings.append('')
+
+	ax.set(yticks=ticks, 
+	       xticks=ticks,
+	       yticklabels=tick_strings, 
+			xticklabels=tick_strings)
+
+	ax.yaxis.set_major_locator(ticker.IndexLocator(base=1, offset=0.5))
+	ax.xaxis.set_major_locator(ticker.IndexLocator(base=1, offset=0.5))
+
+	ax.tick_params(length=0)
+
+	ax.set_xlabel('Predicted class', labelpad=10, fontweight='bold')
+	ax.set_ylabel('True class', labelpad=30, rotation=0, fontweight='bold')
+
+	plt.show()
+	return 
+
+def get_conf_matrix(net, eval_dataloader, device, ending_label):
+	net.train(False)
+	# flag 
+	FIRST = 0 
+
+	y_pred = None
+	y_test = None
+
+	for images_eval, labels_eval in eval_dataloader:
+		images_eval = images_eval.to(device)
+		labels_eval = labels_eval.to(device)
+
+		# Forward Pass
+		outputs_eval = net(images_eval)
+		outputs_eval = outputs_eval[:,:ending_label]
+
+		# Get predictions
+		_, preds = torch.max(outputs_eval.data, 1)
+
+		# concatenate predictions and labels
+		if FIRST: 
+			y_pred = preds.clone()
+			y_test = labels_eval.clone()
+			FIRST+=1
+		else : 
+			y_pred = torch.cat( (y_pred,preds), dim=0)
+			y_test = torch.cat( (y_test,labels_eval), dim=0)
+
+	return confusion_matrix(y_test, y_pred)
 
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
