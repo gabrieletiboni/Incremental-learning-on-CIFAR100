@@ -325,19 +325,19 @@ def eval_model_accuracy(net, dataloader, dataset_length, starting_label, ending_
 	running_corrects = 0
 
 	for images, labels in dataloader:
-	    images = images.to(device)
-	    labels = labels.to(device)
+		images = images.to(device)
+		labels = labels.to(device)
 
-	    # Forward Pass
-	    outputs = net(images)
-		
-	    # Get predictions
-	    _, preds = torch.max(outputs[:,starting_label:ending_label].data, 1)
-		
+		# Forward Pass
+		outputs = net(images)
+
+		# Get predictions
+		_, preds = torch.max(outputs[:,starting_label:ending_label].data, 1)
+
 		labels = labels - starting_label
-	    
+
 		# Update Corrects
-	    running_corrects += torch.sum(preds == labels.data).data.item()
+		running_corrects += torch.sum(preds == labels.data).data.item()
 
 	# Calculate Accuracy
 	accuracy = running_corrects / float(dataset_length)
