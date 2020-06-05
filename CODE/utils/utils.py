@@ -333,10 +333,10 @@ def eval_model_accuracy(net, dataloader, dataset_length, starting_label, ending_
 		
 	    # Get predictions
 	    _, preds = torch.max(outputs[:,starting_label:ending_label].data, 1)
-
-		labels = labels - starting_label
 		
-	    # Update Corrects
+		labels = labels - starting_label
+	    
+		# Update Corrects
 	    running_corrects += torch.sum(preds == labels.data).data.item()
 
 	# Calculate Accuracy
