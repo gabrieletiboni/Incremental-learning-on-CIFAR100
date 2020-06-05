@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import datetime
 import sys
 import pandas as pd
-## modifica figa
+
 
 # from google.colab import auth
 import gspread
@@ -29,7 +29,7 @@ def get_indexes_from_labels(dataset, labels):
 
 
 def train_validation_split(dataset, indexes, train_size=0.9, random_state=None):
-
+	# split indexes 
 	targets = dataset.targets
 
 	train_indexes, val_indexes, _, _ = train_test_split(list(range(0, len(indexes))), list(range(0, len(indexes))), train_size=train_size, stratify=[targets[i] for i in indexes], random_state=random_state)
