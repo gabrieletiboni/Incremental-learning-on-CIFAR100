@@ -134,7 +134,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	plt.grid(alpha=0.3)
 	if print_img:
 		plt.show()
-	plt.close();
+	s
 
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
@@ -346,7 +346,7 @@ def eval_model_accuracy(net, dataloader, dataset_length, device, display=True, s
 
 
 
-def display_conf_mat(conf_mat):
+def display_conf_matrix(conf_mat,display=False,save=False,path=None):
 	n_classes = len(conf_mat)
 
 	ticks = [i-0.5 for i in range(n_classes)]
@@ -375,7 +375,17 @@ def display_conf_mat(conf_mat):
 	ax.set_xlabel('Predicted class', labelpad=10, fontweight='bold')
 	ax.set_ylabel('True class', labelpad=30, rotation=0, fontweight='bold')
 
-	plt.show()
+	if display: 
+		plt.show()
+	plt.close();
+
+	# Save figures
+	if save:
+		if path == None:
+			raise(RuntimeError("Devi passare il path alla funzione display_conf_matrix"))
+
+		fig.savefig(path+'/conf_matrix.png')
+	
 	return 
 
 def get_conf_matrix(net, eval_dataloader, ending_label, device):
