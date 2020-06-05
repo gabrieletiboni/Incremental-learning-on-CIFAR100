@@ -135,8 +135,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	plt.grid(alpha=0.3)
 	if print_img:
 		plt.show()
-	s
-
+	
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
@@ -168,7 +167,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 		fig1.savefig(path+'/group_'+str(group_number)+'/loss.png')
 		fig2.savefig(path+'/group_'+str(group_number)+'/accuracy.png')
 
-def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_eval_curr, group_accuracies_eval, use_validation=True, print_img=False, save=True, path=None):
+def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_eval_curr, group_accuracies_eval, is_joint_training=False, use_validation=True, print_img=False, save=True, path=None):
 	if use_validation:
 		text1 = 'Validation loss'
 		text2 = 'Validation accuracy on all classes'
@@ -200,8 +199,11 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_ev
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
-	ax.plot(group_list, group_accuracies_eval_curr, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy on novel classes')
-	ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+	if is_joint_training :
+		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+	else:
+		ax.plot(group_list, group_accuracies_eval_curr, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy on novel classes')
+		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Accuracy', labelpad=12, rotation=90, fontweight='bold')
