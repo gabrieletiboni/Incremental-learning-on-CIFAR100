@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 import datetime
 import sys
 import pandas as pd
+## modifica figa
 
 # from google.colab import auth
 import gspread
