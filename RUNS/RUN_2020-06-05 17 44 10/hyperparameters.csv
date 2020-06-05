@@ -1,2 +1,0 @@
-Method,LR,num_epochs,batch_size,weight_decay
-Finetuning_noBCE,0.2,20,128,1e-05
