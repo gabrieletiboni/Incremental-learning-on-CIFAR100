@@ -10,7 +10,7 @@ from torch.utils.data import Subset
 
 class iCaRL() :
 
-    def __init__(self, device='cuda', batch_size=None, K=2000, dataset) :
+    def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
         self.device = device
         self.batch_size = batch_size
         self.K = K
@@ -138,10 +138,22 @@ class iCaRL() :
             # feature map (custom)
             features = net.feature_map(images)
 
-            features
-        
+            # normalization
+            features = self.L2_norm(features)
 
-        return
+            running_corrects = 0
+            for i,sample in enumerate(features):
+                dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
+                y_pred = torch.argmax(dots).item()
+                if y_pred == labels[i] : 
+                    running_corrects+=1
+
+        accuracy_eval = running_corrects / float(dataset_length)
+
+        if display :    
+	    	print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
+
+        return accuracy_eval
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
         # Iterate over the dataset
