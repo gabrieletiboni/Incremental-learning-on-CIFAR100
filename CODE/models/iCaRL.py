@@ -181,6 +181,7 @@ class iCaRL() :
             # Compute gradients for each layer and update weights
             loss.backward()  # backward pass: computes gradients
             optimizer.step() # update weights based on accumulated gradients
-        return
+            
+        return loss
 
 
