@@ -18,6 +18,13 @@ class iCaRL() :
         self.means_of_each_class = None
         self.dataset = dataset
 
+    def flattened_exemplars(self) :
+        flat_list = []
+        for sublist in self.exemplars:
+            for item in sublist:
+                flat_list.append(item)
+        return 
+
     def get_indexes_from_label(self, label):
         targets = self.dataset.targets
         indexes = []
