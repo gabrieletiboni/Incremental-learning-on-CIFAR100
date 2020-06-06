@@ -149,10 +149,8 @@ class iCaRL() :
                     running_corrects+=1
 
         accuracy_eval = running_corrects / float(dataset_length)
-
         if display :    
-	    	print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
-
+            print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
         return accuracy_eval
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
