@@ -160,7 +160,8 @@ class iCaRL() :
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label) :
+        FIRST = True
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
             # Bring data over the device of choice
@@ -173,8 +174,9 @@ class iCaRL() :
             
             loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
 
-            if current_step == 0:
+            if FIRST :
                 print('--- Initial loss on train: {}'.format(loss.item()))
+                FIRST = False
 
             # Compute gradients for each layer and update weights
             loss.backward()  # backward pass: computes gradients
