@@ -22,7 +22,6 @@ class iCaRL() :
 
     def compute_means(self, net, dataloader, current_classes):
         
-        
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
