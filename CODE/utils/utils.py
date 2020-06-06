@@ -65,8 +65,7 @@ def show_random_images(dataset, n=5, mean=None, std=None):
 
 def imgshow(img, mean=None, std=None):
 	if mean == None or std == None:
-		print('FATAL ERROR - Dare mean e std alla funzione imgshow')
-		sys.exit()
+		raise RuntimeError("Dare mean e std alla funzione imgshow")
 
 	mean = np.array(mean)
 	std = np.array(std)
@@ -183,8 +182,7 @@ def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, nu
 	# Save figures
 	if save:
 		if path == None:
-			print('FATAL ERROR - Dare un path come parametro al draw_graphs')
-			sys.exit()
+			raise RuntimeError("Dare un path come parametro al draw_graphs")
 
 		fig1.savefig(path+'/group_'+str(group_number)+'/loss.png')
 		fig2.savefig(path+'/group_'+str(group_number)+'/accuracy.png')
@@ -241,30 +239,85 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_ev
 	# Save figures
 	if save:
 		if path == None:
-			print('FATAL ERROR - Dare un path come parametro al draw_final_graphs')
-			sys.exit()
+			raise RuntimeError("Dare un path come parametro al draw_final_graphs")
 
 		fig1.savefig(path+'/group_loss.png')
 		fig2.savefig(path+'/group_accuracy.png')
 
 	return
 
+def draw_final_graphs_nme(group_losses_train, group_losses_eval, group_accuracies_eval_nme, group_accuracies_eval, is_joint_training=False, use_validation=True, print_img=False, save=True, path=None):
+	if use_validation:
+		text1 = 'Validation loss'
+		text2 = 'Validation accuracy on all classes'
+	else:
+		text1 = 'Test loss'
+		text2 = 'Test accuracy on all classes'
+
+	n_groups = len(group_losses_eval)
+	group_list = [(i+1)*10 for i in range(n_groups)]
+
+	fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
+
+	ax.plot(group_list, group_losses_train, linestyle='-', marker='o', label='Training loss')
+	ax.plot(group_list, group_losses_eval, linestyle='-', marker='o', label=text1)
+
+	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
+	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
+
+	ax.set_xticks(group_list)
+
+	# ax.set_title('Incremental', pad=20, fontweight='bold')
+
+	ax.legend()
+	plt.grid(alpha=0.3)
+	if print_img:
+		plt.show()
+	plt.close();
+
+	# Plot accuracies
+	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
+
+	if is_joint_training :
+		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+	else:
+		ax.plot(group_list, group_accuracies_eval_nme, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy on novel classes')
+		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+
+	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
+	ax.set_ylabel('Accuracy', labelpad=12, rotation=90, fontweight='bold')
+
+	# ax.set_title('Accuracy', pad=20, fontweight='bold')
+
+	ax.legend()
+	plt.grid(alpha=0.3)
+	if print_img:
+		plt.show()
+	plt.close();
+
+	# Save figures
+	if save:
+		if path == None:
+			raise RuntimeError("Dare un path come parametro al draw_final_graphs_nme")
+
+		fig1.savefig(path+'/group_loss.png')
+		fig2.savefig(path+'/group_accuracy.png')
+
+	return
 
 def create_dir_for_current_group(group_number, path=None):
 	if path == None:
-		print('FATAL ERROR - Dare un path come parametro al create_dir_for_current_group')
-		sys.exit()
+		raise RuntimeError("Dare un path come parametro al create_dir_for_current_group")
 
 	try:
 	    os.makedirs(path+'/group_'+str(group_number))
 	except OSError:
-	    print ("FATAL ERROR - Creation of the directory of the current group failed")
-	    sys.exit()
+		raise RuntimeError("Creation of the directory of the current group failed")
 
 def dump_to_csv(losses_train, losses_eval, accuracies_train, accuracies_eval, group_number=-1, path=None):
 	if path == None:
-		print('FATAL ERROR - Dare un path come parametro al dump_to_csv')
-		sys.exit()
+		raise RuntimeError("Dare un path come parametro al dump_to_csv")
+
 
 	if len(losses_eval) < len(losses_train):
 		return
@@ -288,8 +341,7 @@ def get_hyperparameter_string(lr, weight_decay, num_epochs, batch_size, multilrs
 
 def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, path=None):
 	if path == None:
-		print('FATAL ERROR - Dare un path come parametro al dump_final_values')
-		sys.exit()
+		raise RuntimeError("Dare un path come parametro al dump_final_values")
 
 	if len(accuracies_eval_curr) < len(accuracies_eval):
 		# JOINT TRAINING
@@ -409,7 +461,7 @@ def display_conf_matrix(conf_mat,display=False,save=False,path=None):
 	# Save figures
 	if save:
 		if path == None:
-			raise(RuntimeError("Devi passare il path alla funzione display_conf_matrix"))
+			raise RuntimeError("Devi passare il path alla funzione display_conf_matrix")
 
 		fig.savefig(path+'/conf_matrix.png')
 	
