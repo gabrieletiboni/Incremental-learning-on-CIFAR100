@@ -23,7 +23,7 @@ class iCaRL() :
         for sublist in self.exemplars:
             for item in sublist:
                 flat_list.append(item)
-        return 
+        return flat_list
 
     def get_indexes_from_label(self, label):
         targets = self.dataset.targets
