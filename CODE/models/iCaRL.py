@@ -4,6 +4,9 @@ import sys
 import torch
 import torchvision
 import math
+import random
+from torch.utils.data import Subset
+
 
 class iCaRL() :
 
@@ -11,25 +14,50 @@ class iCaRL() :
         self.device = device
         self.batch_size = batch_size
         self.K = K
-        self.exemplars = [] #list of indexes
+        self.exemplars = [list() for i in range(100)]
         self.means_of_each_class = None
-        self.image_to_index = self.get_dict_image_to_index()
+        self.dataset = dataset
 
-    def get_dict_image_to_index(self, ) :
+    def get_indexes_from_label(self, label):
+        targets = self.dataset.targets
+        indexes = []
 
-        return
+        for i,target in enumerate(targets):
+            if target == label:
+                indexes.append(i)
 
-    def construct_exemplars(self, net, dataloader, t):
+        return indexes
+
+    def construct_exemplars(self, net, s, t, herding=False):
         # dataloader: contins only current classes
+        # s = startng labels 
         # t = ending label
         m = math.floor(self.K / t)
         count_per_class = []
 
-        for images,labels in dataloader : 
-            
+        # iteriamo sulle nuove classi
+        for c in range(s, t) :
+            indexes = self.get_indexes_from_label(c)
+            samples_of_this_class = Subset(self.dataset, indexes)
+
+            samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
+            random.shuffle(samples_of_this_class_python)
+
+            if not herding :
+                for i in range(m) :
+                    self.exemplars[c] = samples_of_this_class_python[i][1]
+            else :
+                # compute features
+                pass
+
         return
 
-    def reduce_exemplars(self,):
+    def reduce_exemplars(self,s,t):
+        # m = target number of exemplars
+        m = math.floor(self.K / t)
+
+        for i in range(s) : 
+            self.exemplars[i] = self.exemplars[i][:m]
 
         return
 
@@ -60,7 +88,10 @@ class iCaRL() :
                 sums[labels[i]] += sample 
                 counts[labels[i]] += 1
 
-        self.means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
+        means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
+
+        self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
+        print("---->>>>>  Check the norm  <<<<<-----")
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
@@ -95,6 +126,23 @@ class iCaRL() :
 
         return loss
     
+    def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix='') :
+        
+        for images,labels in test_dataloader :
+            # Bring data over the device of choice
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            net.train(False)
+
+            # feature map (custom)
+            features = net.feature_map(images)
+
+            features
+        
+
+        return
+
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
