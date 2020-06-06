@@ -79,7 +79,7 @@ def imgshow(img, mean=None, std=None):
 
 	return
 
-def compute_mean_and_std():
+def compute_mean_and_std(dataset):
 	"""**Compute means and stds to normalize**"""
 	means_1 = []
 	means_2 = []
@@ -88,13 +88,13 @@ def compute_mean_and_std():
 	stds_2 = []
 	stds_3 = []
 
-	for img, lab in train_dataset:      # For test dataset Normalization iter on test_dataset
-	    means_1.append(torch.mean(img[0]))
-	    means_2.append(torch.mean(img[1]))
-	    means_3.append(torch.mean(img[2]))
-	    stds_1.append(img[0])
-	    stds_2.append(img[1])
-	    stds_3.append(img[2])
+	for img, lab in dataset:      # For test dataset Normalization iter on test_dataset
+		means_1.append(torch.mean(img[0]))
+		means_2.append(torch.mean(img[1]))
+		means_3.append(torch.mean(img[2]))
+		stds_1.append(img[0])
+		stds_2.append(img[1])
+		stds_3.append(img[2])
 
 	stds_1 = torch.cat((stds_1), 0)
 	stds_2 = torch.cat((stds_2), 0)
@@ -108,6 +108,28 @@ def compute_mean_and_std():
 
 	print("Means = [{:.4f}, {:.4f}, {:.4f}]".format(mean_1.item(), mean_2.item(), mean_3.item()))
 	print("Stds = [{:.4f}, {:.4f}, {:.4f}]".format(std_1.item(), std_2.item(), std_3.item()))
+	means = (mean_1.item(), mean_2.item(), mean_3.item())
+	stds = (std_1.item(), std_2.item(), std_3.item())
+
+	return means, stds
+
+def compute_mean_and_std_res(means, stds, n):
+	m0, m1, m2 = 0, 0, 0
+	s0, s1, s2 = 0, 0, 0
+
+	for m in means:
+		m0 += m[0]
+		m1 += m[1]
+		m2 += m[2]
+
+	for s in stds:
+		s0 += s[0]
+		s1 += s[1]
+		s2 += s[2]
+
+	means_res = (m0/n, m1/n, m2/n)
+	stds_res = (s0/n, s1/n, s2/n)
+	return means_res, stds_res
 
 def draw_graphs(losses_train, losses_eval, accuracies_train, accuracies_eval, num_epochs, use_validation=True, print_img=False, save=False, path=None, group_number=None):
 	if len(losses_eval) < num_epochs:
@@ -278,7 +300,7 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
-def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, ending_label, device, display=True, suffix=''):
+def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, ending_label, loss=False, device, display=True, suffix=''):
 	net.train(False)
 
 	running_corrects_eval = 0
@@ -291,19 +313,20 @@ def eval_model(net, eval_dataloader, criterion, dataset_length, use_bce_loss, en
 		# Forward Pass
 		outputs_eval = net(images_eval)
 
-		batch_size = len(outputs_eval)
+		if loss : 
+			batch_size = len(outputs_eval)
 
-		if use_bce_loss:
-			targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
-			for i in range(batch_size):
-				targets_bce[i][labels_eval[i]] = 1
+			if use_bce_loss:
+				targets_bce = torch.zeros([batch_size, ending_label], dtype=torch.float32)
+				for i in range(batch_size):
+					targets_bce[i][labels_eval[i]] = 1
 
-			targets_bce = targets_bce.to(device)
+				targets_bce = targets_bce.to(device)
 
-			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], targets_bce).item()
-		else:
-			# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
-			cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
+				cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], targets_bce).item()
+			else:
+				# cum_loss_eval += criterion(outputs_eval, labels_eval).item()
+				cum_loss_eval += criterion(outputs_eval[:, 0:ending_label], labels_eval).item()
 
 		# Get predictions
 		_, preds = torch.max(outputs_eval[:, 0:ending_label].data, 1)
