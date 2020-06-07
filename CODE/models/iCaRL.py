@@ -52,7 +52,7 @@ class iCaRL() :
 
             if not herding :
                 for i in range(m) :
-                    self.exemplars[c] = samples_of_this_class_python[i][1]
+                    self.exemplars[c] += samples_of_this_class_python[i][1]
             else :
                 # compute features
                 pass
@@ -114,7 +114,7 @@ class iCaRL() :
             #print(means_of_each_class)
             
             self.means_of_each_class = self.L2_norm(means_of_each_class)
-            print(self.means_of_each_class[:5,:])
+            #print(self.means_of_each_class[:5,:])
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
