@@ -1,4 +1,4 @@
-losses_train,losses_eval,accuracies_eval,accuracies_eval_curr,accuracies_train
+losses_train,losses_eval,accuracies_eval(hybrid1),accuracies_eval_curr,accuracies_train
 0.030579110607504845,0.0,0.836,0.836,0.9644
 0.06394461542367935,0.0,0.785,0.888,0.9984
 0.0664101168513298,0.0,0.6966666666666667,0.845,0.9994
