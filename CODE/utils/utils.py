@@ -252,7 +252,7 @@ def draw_final_graphs_nme(group_losses_train, group_accuracies_eval_nme, group_a
 	else:
 		text2 = 'Test accuracy (hybrid 1)'
 
-	n_groups = len(group_losses_eval)
+	n_groups = len(group_losses_train)
 	group_list = [(i+1)*10 for i in range(n_groups)]
 
 	fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
