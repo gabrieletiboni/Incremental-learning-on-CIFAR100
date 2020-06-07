@@ -14,9 +14,9 @@ class iCaRL() :
         self.device = device
         self.batch_size = batch_size
         self.K = K       # max number of exemplars
-        self.exemplars = [list() for i in range(100)] # list of lists containing indexes
-        self.means_of_each_class = None
-        self.dataset = dataset
+        self.exemplars = [list() for i in range(100)]   # list of lists containing indexes of exemplars
+        self.means_of_each_class = None                 # 
+        self.dataset = dataset          
 
     def flattened_exemplars(self) :
         flat_list = []
@@ -75,12 +75,10 @@ class iCaRL() :
         res = []
         for feature in features :
             square = torch.square(feature)
-            print(square)
             somma = torch.sum(square)
-            print(somma)
             sqrt = torch.sqrt(somma).item()
-            print(sqrt)
             res.append(feature/sqrt)
+            print(feature/sqrt)
 
         return res
         
