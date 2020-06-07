@@ -518,10 +518,12 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 		features = icarl.L2_norm(features)
 
 		y_test = torch.cat( (y_test,labels) )
-
+		y_pred_list = []
 		for sample in features:
 			dots = torch.tensor([torch.dot(mean, sample).data for mean in icarl.means_of_each_class])
-			y_pred = torch.cat( (y_pred, torch.argmax(dots).item()) )
+			#y_pred = torch.cat( (y_pred, torch.argmax(dots)) )
+			y_pred_list.append(torch.argmax(dots).item())
+		y_pred = torch.cat((y_pred,torch.tensor(y_pred_list)))
 		
 	return confusion_matrix(y_test, y_pred)
 
