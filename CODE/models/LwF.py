@@ -11,7 +11,7 @@ from torch.utils.data import Subset
 class LwF() :
     # Learning without Forgetting (LwF) class implemented as described in iCaRL paper
 
-    def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
+    def __init__(self, dataset, batch_size=0, device='cuda') :
         self.device = device
         self.batch_size = batch_size
         self.means_of_each_class = None
@@ -136,7 +136,7 @@ class LwF() :
             loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
 
             if FIRST :
-                
+
                 print('--- Initial loss on train: {}'.format(loss.item()))
                 FIRST = False
 

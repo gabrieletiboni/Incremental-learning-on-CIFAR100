@@ -76,29 +76,29 @@ class iCaRL() :
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
 
-        for images,labels in dataloader :
-            # Bring data over the device of choice
-            images = images.to(self.device)
-            labels = labels.to(self.device)
+        with torch.no_grad() : 
+            for images,labels in dataloader :
+                # Bring data over the device of choice
+                images = images.to(self.device)
+                labels = labels.to(self.device)
 
-            net.train(False)
+                net.train(False)
+                # feature map (custom)
+                features = net.feature_map(images)
+                # print(features.size()) #should be BATCH_SIZE x 64
 
-            # feature map (custom)
-            features = net.feature_map(images)
+                # normalization
+                features = self.L2_norm(features)
 
-            print(features.size()) #should be BATCH_SIZE x 64
+                for i,sample in enumerate(features) :
+                    sums[labels[i]] += sample 
+                    counts[labels[i]] += 1
 
-            # normalization
-            features = self.L2_norm(features)
+            means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
 
-            for i,sample in enumerate(features) :
-                sums[labels[i]] += sample 
-                counts[labels[i]] += 1
+            self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
+            print("----->>>>>  Check the norm  <<<<<-----")
 
-        means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
-
-        self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
-        print("---->>>>>  Check the norm  <<<<<-----")
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
@@ -159,10 +159,11 @@ class iCaRL() :
 
         if display :    
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
-            
+
         return accuracy_eval
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
+        FIRST = True
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
             # Bring data over the device of choice
@@ -175,8 +176,9 @@ class iCaRL() :
             
             loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
 
-            if current_step == 0 :
+            if current_step == 0 and FIRST:
                 print('--- Initial loss on train: {}'.format(loss.item()))
+                FIRST = False 
 
             # Compute gradients for each layer and update weights
             loss.backward()  # backward pass: computes gradients
