@@ -89,7 +89,6 @@ class iCaRL() :
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
         means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
 
-
         with torch.no_grad() : 
             for images,labels in dataloader:
                 # Bring data over the device of choice
@@ -133,8 +132,7 @@ class iCaRL() :
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
-                outputs_old = outputs_old[:,0:starting_label]
-                sigmoids_old = torch.sigmoid(outputs_old)
+                sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size):
@@ -152,7 +150,7 @@ class iCaRL() :
     
     def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix='') :
         
-        for images,labels in test_dataloader :
+        for images,labels in test_dataloader:
             # Bring data over the device of choice
             images = images.to(self.device)
             labels = labels.to(self.device)
@@ -171,7 +169,8 @@ class iCaRL() :
                 y_pred = torch.argmax(dots).item()
                 if y_pred == labels[i] : 
                     running_corrects+=1
-
+        print('Running corrects', running_corrects)
+        print('Dataset length', dataset_length)
         accuracy_eval = running_corrects / float(dataset_length)
 
         if display :    
