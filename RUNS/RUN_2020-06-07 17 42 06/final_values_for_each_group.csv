@@ -1,0 +1,4 @@
+losses_train,accuracies_eval_nme,accuracies_eval,accuracies_eval_curr,accuracies_train
+0.3229576051235199,0.13,0.128,0.128,0.1242
+0.2934400737285614,0.0685,0.0615,0.117,0.125
+0.2746414840221405,0.056,0.05,0.176,0.1712
