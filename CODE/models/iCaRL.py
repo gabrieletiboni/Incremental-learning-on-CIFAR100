@@ -113,9 +113,8 @@ class iCaRL() :
             
             #print(means_of_each_class)
             
-            self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
-            print("----->>>>>  Check the norm  <<<<<-----")
-
+            self.means_of_each_class = self.L2_norm(means_of_each_class)
+            print(self.means_of_each_class[:5,:])
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
