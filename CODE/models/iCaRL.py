@@ -51,8 +51,7 @@ class iCaRL() :
             random.shuffle(samples_of_this_class_python)
 
             if not herding :
-                for i in range(m) :
-                    print(self.exemplars[c])
+                for i in range(m):
                     self.exemplars[c].append(samples_of_this_class_python[i][1])
             else :
                 # compute features
@@ -134,6 +133,7 @@ class iCaRL() :
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
+                outputs_old = outputs_old[:,0:starting_label]
                 sigmoids_old = torch.sigmoid(outputs_old)
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
