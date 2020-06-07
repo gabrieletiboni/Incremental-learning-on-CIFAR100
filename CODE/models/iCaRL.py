@@ -70,7 +70,8 @@ class iCaRL() :
 
     def L2_norm(self, features): 
         # L2-norm on rows
-        return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
+        #return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
+        return [feature/torch.sqrt(torch.sum(torch.square(feature)).item()) for feature in features]
 
     def compute_means(self, net, dataloader, ending_label):
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
@@ -97,7 +98,7 @@ class iCaRL() :
             means_of_each_class = [sums[i]/float(count) for i,count in enumerate(counts)]
             
             print(means_of_each_class)
-
+            
             self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
             print("----->>>>>  Check the norm  <<<<<-----")
 
