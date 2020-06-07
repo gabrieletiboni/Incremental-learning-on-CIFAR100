@@ -72,23 +72,26 @@ class iCaRL() :
         # L2-norm on rows
         #return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
         #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
-        res = []
-        for feature in features :
+        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to(self.device)
+
+        for i,feature in enumerate(features):
             square = torch.square(feature)
             somma = torch.sum(square)
             sqrt = torch.sqrt(somma).item()
-            res.append(feature/sqrt)
-            print(feature/sqrt)
+            features_norm[i] += feature/sqrt
+            #print(feature/sqrt)
 
-        return res
+        return features_norm
         
 
     def compute_means(self, net, dataloader, ending_label):
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
+        means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
+
 
         with torch.no_grad() : 
-            for images,labels in dataloader :
+            for images,labels in dataloader:
                 # Bring data over the device of choice
                 images = images.to(self.device)
                 labels = labels.to(self.device)
@@ -101,11 +104,12 @@ class iCaRL() :
                 # normalization
                 features = self.L2_norm(features)
 
-                for i,sample in enumerate(features) :
+                for i,sample in enumerate(features):
                     sums[labels[i]] += sample 
                     counts[labels[i]] += 1
 
-            means_of_each_class = [sums[i]/float(count) for i,count in enumerate(counts)]
+            for i,count in enumerate(counts):
+                means_of_each_class[i] += sums[i]/float(count)
             
             #print(means_of_each_class)
             
