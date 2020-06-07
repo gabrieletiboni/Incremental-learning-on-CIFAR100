@@ -152,7 +152,7 @@ class ResNet(nn.Module):
 
     def L2_norm(self, features): 
         # L2-norm on rows
-        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to('cuda')
+        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float32).to('cuda')
 
         for i,feature in enumerate(features):
             square = torch.square(feature)
