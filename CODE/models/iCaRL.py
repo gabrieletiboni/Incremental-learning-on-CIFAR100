@@ -13,8 +13,8 @@ class iCaRL() :
     def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
         self.device = device
         self.batch_size = batch_size
-        self.K = K              # max number
-        self.exemplars = [list() for i in range(100)]
+        self.K = K       # max number of exemplars
+        self.exemplars = [list() for i in range(100)] # list of lists containing indexes
         self.means_of_each_class = None
         self.dataset = dataset
 
@@ -71,7 +71,19 @@ class iCaRL() :
     def L2_norm(self, features): 
         # L2-norm on rows
         #return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
-        return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
+        #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
+        res = []
+        for feature in features :
+            square = torch.square(feature)
+            print(square)
+            somma = torch.sum(square)
+            print(somma)
+            sqrt = torch.sqrt(somma).item()
+            print(sqrt)
+            res.append(feature/sqrt)
+
+        return res
+        
 
     def compute_means(self, net, dataloader, ending_label):
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
