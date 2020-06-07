@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+iCARL_42,2,70,128,1e-05
