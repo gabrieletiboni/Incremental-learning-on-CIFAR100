@@ -94,7 +94,9 @@ class iCaRL() :
                     sums[labels[i]] += sample 
                     counts[labels[i]] += 1
 
-            means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
+            means_of_each_class = [sums[i]/float(count) for i,count in enumerate(counts)]
+            
+            print(means_of_each_class)
 
             self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
             print("----->>>>>  Check the norm  <<<<<-----")
