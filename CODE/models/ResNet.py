@@ -143,9 +143,6 @@ class ResNet(nn.Module):
         if self.NORM_DURING_TRAINING:
             x = self.L2_norm(x)
 
-        print(x)
-        sys.exit()
-
         x = self.fc(x)
 
         return x
