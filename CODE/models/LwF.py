@@ -8,22 +8,14 @@ import random
 from torch.utils.data import Subset
 
 
-class iCaRL() :
+class LwF() :
+    # Learning without Forgetting (LwF) class implemented as described in iCaRL paper
 
     def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
         self.device = device
         self.batch_size = batch_size
-        self.K = K
-        self.exemplars = [list() for i in range(100)]
         self.means_of_each_class = None
         self.dataset = dataset
-
-    def flattened_exemplars(self) :
-        flat_list = []
-        for sublist in self.exemplars:
-            for item in sublist:
-                flat_list.append(item)
-        return flat_list
 
     def get_indexes_from_label(self, label):
         targets = self.dataset.targets
@@ -35,46 +27,15 @@ class iCaRL() :
 
         return indexes
 
-    def construct_exemplars(self, net, s, t, herding=False):
-        # dataloader: contins only current classes
-        # s = startng labels 
-        # t = ending label
-        m = math.floor(self.K / t)
-        count_per_class = []
 
-        # iteriamo sulle nuove classi
-        for c in range(s, t) :
-            indexes = self.get_indexes_from_label(c)
-            samples_of_this_class = Subset(self.dataset, indexes)
-
-            samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
-            random.shuffle(samples_of_this_class_python)
-
-            if not herding :
-                for i in range(m) :
-                    self.exemplars[c] = samples_of_this_class_python[i][1]
-            else :
-                # compute features
-                pass
-
-        return
-
-    def reduce_exemplars(self,s,t):
-        # m = target number of exemplars
-        m = math.floor(self.K / t)
-
-        for i in range(s) : 
-            self.exemplars[i] = self.exemplars[i][:m]
-
-        return
 
     def L2_norm(self, features): 
         # L2-norm on rows
         return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
 
     def compute_means(self, net, dataloader, ending_label):
-        sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
-        counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
+        sums = torch.zeros((ending_label,64), dtype=torch.float64)
+        counts = torch.zeros(ending_label, dtype=torch.int32)
 
         for images,labels in dataloader :
             # Bring data over the device of choice
@@ -156,13 +117,12 @@ class iCaRL() :
                     running_corrects+=1
 
         accuracy_eval = running_corrects / float(dataset_length)
-
         if display :    
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
-            
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label) :
+        FIRST = True
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
             # Bring data over the device of choice
@@ -175,8 +135,10 @@ class iCaRL() :
             
             loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
 
-            if current_step == 0 :
+            if FIRST :
+                
                 print('--- Initial loss on train: {}'.format(loss.item()))
+                FIRST = False
 
             # Compute gradients for each layer and update weights
             loss.backward()  # backward pass: computes gradients
