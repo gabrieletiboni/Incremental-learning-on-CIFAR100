@@ -501,8 +501,8 @@ def get_conf_matrix(net, eval_dataloader, ending_label, device):
 
 def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
-	y_pred = torch.zeros(0).to(device)
-	y_test = torch.zeros(0).to(device)
+	y_pred = torch.zeros(0, dtype = torch.long).to(device)
+	y_test = torch.zeros(0, dtype = torch.long).to(device)
 
 	net.train(False)
 
@@ -519,7 +519,7 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
 		y_test = torch.cat( (y_test,labels) )
 
-		for i,sample in enumerate(features):
+		for sample in features:
 			dots = torch.tensor([torch.dot(mean, sample).data for mean in icarl.means_of_each_class])
 			y_pred = torch.cat( (y_pred, torch.argmax(dots)) )
 		
