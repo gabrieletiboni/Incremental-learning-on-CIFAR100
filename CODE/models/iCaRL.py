@@ -50,10 +50,10 @@ class iCaRL() :
             samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
             random.shuffle(samples_of_this_class_python)
 
-            if not herding :
+            if not herding:
                 for i in range(m):
                     self.exemplars[c].append(samples_of_this_class_python[i][1])
-            else :
+            else:
                 # compute features
                 pass
 
@@ -70,7 +70,7 @@ class iCaRL() :
 
     def L2_norm(self, features): 
         # L2-norm on rows
-        #return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
+
         #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
         features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to(self.device)
 

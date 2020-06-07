@@ -246,13 +246,11 @@ def draw_final_graphs(group_losses_train, group_losses_eval, group_accuracies_ev
 
 	return
 
-def draw_final_graphs_nme(group_losses_train, group_losses_eval, group_accuracies_eval_nme, group_accuracies_eval, is_joint_training=False, use_validation=True, print_img=False, save=True, path=None):
+def draw_final_graphs_nme(group_losses_train, group_accuracies_eval_nme, group_accuracies_eval, use_validation=False, print_img=False, save=True, path=None):
 	if use_validation:
-		text1 = 'Validation loss'
-		text2 = 'Validation accuracy on all classes'
+		text2 = 'Validation accuracy (hybrid 1)'
 	else:
-		text1 = 'Test loss'
-		text2 = 'Test accuracy on all classes'
+		text2 = 'Test accuracy (hybrid 1)'
 
 	n_groups = len(group_losses_eval)
 	group_list = [(i+1)*10 for i in range(n_groups)]
@@ -260,7 +258,6 @@ def draw_final_graphs_nme(group_losses_train, group_losses_eval, group_accuracie
 	fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
 	ax.plot(group_list, group_losses_train, linestyle='-', marker='o', label='Training loss')
-	ax.plot(group_list, group_losses_eval, linestyle='-', marker='o', label=text1)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Loss', labelpad=12, rotation=90, fontweight='bold')
@@ -278,11 +275,8 @@ def draw_final_graphs_nme(group_losses_train, group_losses_eval, group_accuracie
 	# Plot accuracies
 	fig2, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,5))
 
-	if is_joint_training :
-		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
-	else:
-		ax.plot(group_list, group_accuracies_eval_nme, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy on novel classes')
-		ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
+	ax.plot(group_list, group_accuracies_eval_nme, color='#7B1FA2', linestyle='-', marker='o', label='Test accuracy')
+	ax.plot(group_list, group_accuracies_eval, color='#FFC107', linestyle='-', marker='o', label=text2)
 
 	ax.set_xlabel('Number of classes', labelpad=12, fontweight='bold')
 	ax.set_ylabel('Accuracy', labelpad=12, rotation=90, fontweight='bold')
@@ -349,6 +343,14 @@ def dump_final_values(losses_train, losses_eval, accuracies_train, accuracies_ev
 	else:
 		# NO JOINT TRAINING
 		df = pd.DataFrame({'losses_train': losses_train, 'losses_eval': losses_eval, 'accuracies_eval': accuracies_eval, 'accuracies_eval_curr': accuracies_eval_curr, 'accuracies_train': accuracies_train})
+
+	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
+
+def dump_final_values_nme(losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, path=None):
+	if path == None:
+		raise RuntimeError("Dare un path come parametro al dump_final_values")
+
+	df = pd.DataFrame({'losses_train': losses_train, 'accuracies_eval_nme' : accuracies_eval_nme, 'accuracies_eval': accuracies_eval, 'accuracies_eval_curr': accuracies_eval_curr, 'accuracies_train': accuracies_train})
 
 	df.to_csv(path+'/final_values_for_each_group.csv', encoding='utf-8', index=False)
 
@@ -538,7 +540,7 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	elif user == 2:
 		user_name = 'Gabriele'
 	else:
-		raise (Runtime('Dare uno user a dump_on_gspreadsheet che sia valido'))
+		raise RuntimeError('Dare uno user a dump_on_gspreadsheet che sia valido')
 
 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
@@ -546,6 +548,41 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
 	values = [path, link, user_name, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
+
+	# Update with new values
+	worksheet.append_row(values, value_input_option='USER_ENTERED')
+
+	return
+
+
+def dump_on_gspreadsheet_nme(path, user, link, method, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
+	scope = ['https://www.googleapis.com/auth/spreadsheets']
+	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
+
+	gc = gspread.authorize(credentials)
+
+	# Open
+	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
+
+	# select worksheet
+	worksheet = sheet.worksheet('icarl')
+
+	if user == 0:
+		user_name = 'Roberto'
+	elif user == 1:
+		user_name = 'Alessandro'
+	elif user == 2:
+		user_name = 'Gabriele'
+	else:
+		raise RuntimeError('Dare uno user a dump_on_gspreadsheet che sia valido')
+
+	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
+	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
+	avg_incremental_accuracy = np.mean(accuracies_eval_nme)
+	accuracies_eval_nme = '[' + ', '.join([str(elem) for elem in accuracies_eval_nme]) + "]" 
+	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
+	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
+	values = [path, link, user_name, method, str(duration), losses_train, accuracies_train, avg_incremental_accuracy, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
