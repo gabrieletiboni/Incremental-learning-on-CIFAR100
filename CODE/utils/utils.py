@@ -499,6 +499,32 @@ def get_conf_matrix(net, eval_dataloader, ending_label, device):
 	
 	return confusion_matrix(y_test, y_pred)
 
+def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
+
+	y_pred = torch.zeros(0).to(device)
+	y_test = torch.zeros(0).to(device)
+
+	net.train(False)
+
+	for images,labels in eval_dataloader:
+		# Bring data over the device of choice
+		images = images.to(device)
+		labels = labels.to(device)
+
+		# feature map (custom)
+		features = net.feature_map(images)
+
+		# normalization
+		features = icarl.L2_norm(features)
+
+		y_test = torch.cat( (y_test,labels) )
+
+		for i,sample in enumerate(features):
+			dots = torch.tensor([torch.dot(mean, sample).data for mean in icarl.means_of_each_class])
+			y_pred = torch.cat( (y_pred, torch.argmax(dots)) )
+		
+	return confusion_matrix(y_test, y_pred)
+
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
 	
 # 	auth.authenticate_user()
