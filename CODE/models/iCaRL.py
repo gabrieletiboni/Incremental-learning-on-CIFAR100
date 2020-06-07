@@ -148,8 +148,9 @@ class iCaRL() :
 
         return loss
     
-    def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix='') :
-        
+    def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
+
+        running_corrects = 0
         for images,labels in test_dataloader:
             # Bring data over the device of choice
             images = images.to(self.device)
@@ -163,14 +164,12 @@ class iCaRL() :
             # normalization
             features = self.L2_norm(features)
 
-            running_corrects = 0
             for i,sample in enumerate(features):
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 y_pred = torch.argmax(dots).item()
                 if y_pred == labels[i] : 
                     running_corrects+=1
-        print('Running corrects', running_corrects)
-        print('Dataset length', dataset_length)
+
         accuracy_eval = running_corrects / float(dataset_length)
 
         if display :    
