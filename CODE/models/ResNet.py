@@ -49,7 +49,10 @@ class BasicBlock(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=10):
+    def __init__(self, block, layers, num_classes=100, norm_during_training=False):
+
+        self.NORM_DURING_TRAINING = norm_during_training
+
         self.inplanes = 16
         super(ResNet, self).__init__()
 
@@ -109,6 +112,21 @@ class ResNet(nn.Module):
 
         return x
 
+    # def forward(self, x):
+    #     x = self.conv1(x)
+    #     x = self.bn1(x)
+    #     x = self.relu(x)
+
+    #     x = self.layer1(x)
+    #     x = self.layer2(x)
+    #     x = self.layer3(x)
+
+    #     x = self.avgpool(x)
+    #     x = x.view(x.size(0), -1)
+    #     x = self.fc(x)
+
+    #     return x
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
@@ -120,9 +138,25 @@ class ResNet(nn.Module):
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
+
+        if self.NORM_DURING_TRAINING:
+            x = self.L2_norm(x)
+
         x = self.fc(x)
 
         return x
+
+    def L2_norm(self, features): 
+        # L2-norm on rows
+        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to('cuda')
+
+        for i,feature in enumerate(features):
+            square = torch.square(feature)
+            somma = torch.sum(square)
+            sqrt = torch.sqrt(somma).item()
+            features_norm[i] += feature/sqrt
+
+        return features_norm
 
 # def resnet20(pretrained=False, **kwargs):
 #     n = 3
