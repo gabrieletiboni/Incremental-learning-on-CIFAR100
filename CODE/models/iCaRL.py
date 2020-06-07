@@ -52,7 +52,8 @@ class iCaRL() :
 
             if not herding :
                 for i in range(m) :
-                    self.exemplars[c] += samples_of_this_class_python[i][1]
+                    print(self.exemplars[c])
+                    self.exemplars[c].append(samples_of_this_class_python[i][1])
             else :
                 # compute features
                 pass
