@@ -55,6 +55,7 @@ class iCaRL() :
                     self.exemplars[c].append(samples_of_this_class_python[i][1])
             else:
                 # compute features
+                    
                 pass
 
         return

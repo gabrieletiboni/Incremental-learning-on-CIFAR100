@@ -523,8 +523,8 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 			dots = torch.tensor([torch.dot(mean, sample).data for mean in icarl.means_of_each_class])
 			#y_pred = torch.cat( (y_pred, torch.argmax(dots)) )
 			y_pred_list.append(torch.argmax(dots).item())
-		y_pred = torch.cat((y_pred,torch.tensor(y_pred_list)))
-		
+		y_pred = torch.cat( (y_pred, torch.tensor(y_pred_list).to(device)) )
+
 	return confusion_matrix(y_test, y_pred)
 
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
