@@ -45,13 +45,10 @@ class iCaRL() :
             with torch.no_grad(): 
                 for c in range(s, t) :  
                     features_list = []
-                    class_mean = self.means_of_each_class[c]
+                    class_mean = self.means_of_each_class[c].detach().cpu().clone().numpy()
                     indexes = self.get_indexes_from_label(c)
                     samples_of_this_class = Subset(self.dataset, indexes)
 
-                    ######### DA QUI IN POI #######
-                    #images = torch.stack((samples_of_this_class[0][0].clone()) # .detach().clone()
-                    
                     net.train(False)
                     for image, _ in samples_of_this_class :
                         image = image.view(1, image.size(0),image.size(1),image.size(2))
