@@ -59,8 +59,6 @@ class iCaRL() :
                         # feature map
                         features = net.feature_map(image) 
                         # normalization
-                        print(features.size(0))
-                        print(features.size(1))
                         features = self.L2_norm(features).data.cpu().numpy()
                         print(features)
                         print(features[0])
@@ -75,7 +73,7 @@ class iCaRL() :
                         S = np.sum(features_exemplars, axis=0)
                         mean_exemplars = 1.0/(k+1) * (features + S)
                         # normalize mean exemplars
-                        mean_exemplars = self.L2_norm(mean_exemplars,numpy=True)
+                        mean_exemplars = self.L2_norm(torch.tensor(mean_exemplars).to(self.device),numpy=True)
                         # argmin 
                         # i = np.argmin(np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ))
 
@@ -137,6 +135,7 @@ class iCaRL() :
         
 
     def compute_means(self, net, dataloader, ending_label):
+        # dataloader = current classes + exemplars
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
         means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
