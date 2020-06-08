@@ -48,7 +48,7 @@ class iCaRLmodel(LWF):
         return one_hot
 
     def _compute_loss(self, indexs, imgs, target,loss):
-        output=self.net(imgs)
+        output = self.net(imgs)
         target = self.get_one_hot(target, 100)
         output, target = output.to(device), target.to(device)
         if loss == "BCE_Logits": criterion= BCEWithLogitsLoss()
@@ -74,7 +74,7 @@ class iCaRLmodel(LWF):
                      opt = optim.SGD(self.net.parameters(), lr=2/5, weight_decay=0.00001,)
                 else:
                      for p in opt.param_groups:
-                         p['lr'] =self.learning_rate/ 5
+                         p['lr'] = self.learning_rate/ 5
                      #opt = optim.SGD(self.model.parameters(), lr=self.learning_rate/ 5,weight_decay=0.00001,momentum=0.9,nesterov=True,)
                 print("change learning rate:%.3f" % (self.learning_rate / 5))
             elif epoch == 62:
