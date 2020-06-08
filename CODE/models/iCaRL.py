@@ -169,11 +169,12 @@ class iCaRL() :
 
         if starting_label == 0:
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
+            # one hot encoding
             for i in range(self.batch_size):
                 targets_bce[i][labels[i]] = 1
-
+            
             targets_bce = targets_bce.to(self.device)
-
+            
             loss = criterion(outputs[:, 0:ending_label], targets_bce)
         else:
             with torch.no_grad():
