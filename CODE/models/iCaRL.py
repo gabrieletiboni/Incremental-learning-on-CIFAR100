@@ -78,7 +78,7 @@ class iCaRL() :
                         # i = np.argmin(np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ))
 
                         # argsort : torna vettore di indici ordinati per distanze crescenti 
-                        i_vector = np.argsort( np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ) s)
+                        i_vector = np.argsort( np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ) )
 
                         i = 0
                         while i_vector[i] in i_added :
