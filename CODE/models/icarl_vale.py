@@ -30,6 +30,24 @@ class iCaRLmodel(LWF):
           self.class_mean_set = []
           self.index = 0
 
+    def _test(self, testloader, mode):
+        if mode==0:
+            print("compute NMS") #near mean 
+        self.net.eval()
+        correct, total = 0, 0
+        for setp, (indexs, imgs, labels) in enumerate(testloader):
+            imgs, labels = imgs.to(device), labels.to(device)
+            #if mode 1 classify using fully connected layer
+            #if mode 0 classify using Nearest Mean
+            with torch.no_grad():
+                outputs = self.net(imgs) if mode == 1 else self.classify(imgs,'NMS') 
+            predicts = torch.max(outputs, dim=1)[1] if mode == 1 else outputs #!!!
+            correct += (predicts.cpu() == labels.cpu()).sum()
+            total += len(labels)
+        accuracy = 100 * correct / total
+        self.net.train()
+        return accuracy
+
     def beforeTrain(self):
         self.net.eval()
         classes=[self.numclass-self.task_size,self.numclass]
@@ -147,9 +165,6 @@ class iCaRLmodel(LWF):
             index = np.argmin(x)   
             now_class_mean += feature_extractor_output[index]
             exemplar.append(images[index])
-            
-            
-            
 
         print("the size of exemplar :%s" % (str(len(exemplar))))
         self.exemplar_set.append(exemplar)

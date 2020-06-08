@@ -18,7 +18,7 @@ class iCaRL() :
         self.means_of_each_class = None                 # 
         self.dataset = dataset          
 
-    def flattened_exemplars(self) :
+    def flattened_exemplars(self):
         flat_list = []
         for sublist in self.exemplars:
             for item in sublist:
@@ -228,13 +228,14 @@ class iCaRL() :
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
         FIRST = True
+
+        ###net.train() # Sets module in training mode
+
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
             # Bring data over the device of choice
             images = images.to(self.device)
             labels = labels.to(self.device)
-
-            net.train() # Sets module in training mode
 
             optimizer.zero_grad() # Zero-ing the gradients
             
