@@ -57,8 +57,6 @@ class iCaRL() :
                         features = net.feature_map(image) 
                         # normalization
                         features = self.L2_norm(features).data.cpu().numpy()
-                        print(features)
-                        print(features[0])
                         
                         features_list.append(features[0])
 
