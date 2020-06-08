@@ -1,3 +1,27 @@
+# MAIN
+import torch
+
+numclass=10
+feature_extractor=resnet32_cbam()
+img_size=32
+batch_size=128
+task_size=10
+memory_size=2000
+epochs=70
+learning_rate=2.0
+
+model=iCaRLmodel(numclass,feature_extractor,batch_size,task_size,memory_size,epochs,learning_rate)
+
+for i in range(10):
+    model.beforeTrain()
+    accuracy=model.train()
+    model.afterTrain(accuracy)
+    #batch_test_accuracy.append(accuracy)
+    print('accuracy:%.3f' % accuracy)
+   # batch_test_accuracy.append((j, i) for j in accuracy)
+   # batch_val_accuracy.append((j, i) for j in val_accuracy)
+
+# CLASSE
 class iCaRLmodel(LWF):
  
     def _init_(self,numclass,feature_extractor,batch_size,task_size,memory_size,epochs,learning_rate):
