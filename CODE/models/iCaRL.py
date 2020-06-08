@@ -35,7 +35,7 @@ class iCaRL() :
 
         return indexes
 
-    def construct_exemplars(self, net, s, t, herding=False):
+    def construct_exemplars(self, net, s, t, herding=True):
         # dataloader: contains only current classes
         # s = startng labels 
         # t = ending label
