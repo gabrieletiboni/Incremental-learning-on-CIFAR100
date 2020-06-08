@@ -52,8 +52,6 @@ class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=100, norm_during_training=False):
 
-        self.NORM_DURING_TRAINING = norm_during_training
-
         self.inplanes = 16
         super(ResNet, self).__init__()
 
@@ -139,9 +137,6 @@ class ResNet(nn.Module):
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-
-        if self.NORM_DURING_TRAINING:
-            x = self.L2_norm(x)
 
         x = self.fc(x)
 
