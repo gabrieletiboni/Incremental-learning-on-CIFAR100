@@ -59,6 +59,8 @@ class iCaRL() :
                         # feature map
                         features = net.feature_map(image) 
                         # normalization
+                        print(features.size(0))
+                        print(features.size(1))
                         features = self.L2_norm(features).data.cpu().numpy()
                         print(features)
                         print(features[0])
@@ -119,7 +121,7 @@ class iCaRL() :
         # L2-norm on rows
 
         #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
-        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to(self.device)
+        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float32).to(self.device)
 
         for i,feature in enumerate(features):
             square = torch.square(feature)
