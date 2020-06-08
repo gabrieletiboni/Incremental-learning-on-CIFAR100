@@ -527,7 +527,7 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
 	y_pred = y_pred.detach().cpu().numpy()
 	y_test = y_test.detach().cpu().numpy()
-	
+
 	return confusion_matrix(y_test, y_pred)
 
 # def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):

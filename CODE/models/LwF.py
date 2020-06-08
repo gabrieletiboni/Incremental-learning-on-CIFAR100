@@ -10,12 +10,21 @@ from torch.utils.data import Subset
 
 class LwF() :
     # Learning without Forgetting (LwF) class implemented as described in iCaRL paper
+    def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
 
-    def __init__(self, dataset, batch_size=0, device='cuda') :
         self.device = device
         self.batch_size = batch_size
-        self.means_of_each_class = None
-        self.dataset = dataset
+        self.K = K       # max number of exemplars
+        self.exemplars = [list() for i in range(100)]   # list of lists containing indexes of exemplars
+        self.means_of_each_class = None                 # 
+        self.dataset = dataset          
+
+    def flattened_exemplars(self) :
+        flat_list = []
+        for sublist in self.exemplars:
+            for item in sublist:
+                flat_list.append(item)
+        return flat_list
 
     def get_indexes_from_label(self, label):
         targets = self.dataset.targets
@@ -27,39 +36,108 @@ class LwF() :
 
         return indexes
 
+    def construct_exemplars(self, net, s, t, herding=False):
+        # dataloader: contains only current classes
+        # s = startng labels 
+        # t = ending label
+        m = math.floor(self.K / t)
+        count_per_class = []
 
+        if herding : 
+            with torch.no_grad(): 
+                for c in range(s, t) :
+                    indexes = self.get_indexes_from_label(c)
+                    samples_of_this_class = Subset(self.dataset, indexes)
+
+                    ######### DA QUI IN POI #######
+                    images = torch.stack((samples_of_this_class[0][0].clone()) # .detach().clone()
+                    
+                    for image, _ in samples_of_this_class[1:]:
+                        images = torch.cat( (images, image) )
+
+
+                    net.train(False)
+                    for image, _ in samples_of_this_class: 
+                        # Bring data over the device of choice
+                        image = image.to(self.device)
+
+                        
+                        # feature map (custom)
+                        features = net.feature_map(image)
+                        # print(features.size()) #should be BATCH_SIZE x 64
+
+                        # normalization
+                        features = self.L2_norm(features)
+
+        else:
+            # iteriamo sulle nuove classi
+            for c in range(s, t) :
+                indexes = self.get_indexes_from_label(c)
+                samples_of_this_class = Subset(self.dataset, indexes)
+
+                samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
+                random.shuffle(samples_of_this_class_python)
+
+                for i in range(m):
+                    self.exemplars[c].append(samples_of_this_class_python[i][1])
+
+        return
+
+    def reduce_exemplars(self,s,t):
+        # m = target number of exemplars
+        m = math.floor(self.K / t)
+
+        for i in range(s) : 
+            self.exemplars[i] = self.exemplars[i][:m]
+
+        return
 
     def L2_norm(self, features): 
         # L2-norm on rows
-        return [feature/torch.sqrt(torch.sum(torch.square(feature)).data) for feature in features]
+
+        #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
+        features_norm = torch.zeros((features.size(0),features.size(1)), dtype=torch.float64).to(self.device)
+
+        for i,feature in enumerate(features):
+            square = torch.square(feature)
+            somma = torch.sum(square)
+            sqrt = torch.sqrt(somma).item()
+            features_norm[i] += feature/sqrt
+            #print(feature/sqrt)
+
+        return features_norm
+        
 
     def compute_means(self, net, dataloader, ending_label):
-        sums = torch.zeros((ending_label,64), dtype=torch.float64)
-        counts = torch.zeros(ending_label, dtype=torch.int32)
+        sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
+        counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
+        means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
 
-        for images,labels in dataloader :
-            # Bring data over the device of choice
-            images = images.to(self.device)
-            labels = labels.to(self.device)
+        with torch.no_grad() : 
+            for images,labels in dataloader:
+                # Bring data over the device of choice
+                images = images.to(self.device)
+                labels = labels.to(self.device)
 
-            net.train(False)
+                net.train(False)
+                # feature map (custom)
+                features = net.feature_map(images)
+                # print(features.size()) #should be BATCH_SIZE x 64
 
-            # feature map (custom)
-            features = net.feature_map(images)
+                # normalization
+                features = self.L2_norm(features)
 
-            print(features.size()) #should be BATCH_SIZE x 64
+                for i,sample in enumerate(features):
+                    sums[labels[i]] += sample 
+                    counts[labels[i]] += 1
 
-            # normalization
-            features = self.L2_norm(features)
-
-            for i,sample in enumerate(features) :
-                sums[labels[i]] += sample 
-                counts[labels[i]] += 1
-
-        means_of_each_class = [sums[i]/count for i,count in enumerate(counts)]
-
-        self.means_of_each_class = torch.tensor(self.L2_norm(means_of_each_class)).to(self.device)
-        print("---->>>>>  Check the norm  <<<<<-----")
+            for i,count in enumerate(counts):
+                means_of_each_class[i] += sums[i]/float(count)
+            
+            #print(means_of_each_class)
+            
+            self.means_of_each_class = self.L2_norm(means_of_each_class)
+            #print(self.means_of_each_class[:5,:])
         return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
@@ -78,7 +156,7 @@ class LwF() :
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
-                sigmoids_old = torch.sigmoid(outputs_old)
+                sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size):
@@ -94,9 +172,10 @@ class LwF() :
 
         return loss
     
-    def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix='') :
-        
-        for images,labels in test_dataloader :
+    def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
+
+        running_corrects = 0
+        for images,labels in test_dataloader:
             # Bring data over the device of choice
             images = images.to(self.device)
             labels = labels.to(self.device)
@@ -109,7 +188,6 @@ class LwF() :
             # normalization
             features = self.L2_norm(features)
 
-            running_corrects = 0
             for i,sample in enumerate(features):
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 y_pred = torch.argmax(dots).item()
@@ -117,11 +195,13 @@ class LwF() :
                     running_corrects+=1
 
         accuracy_eval = running_corrects / float(dataset_length)
+
         if display :    
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
+
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label) :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
         FIRST = True
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
@@ -135,10 +215,9 @@ class LwF() :
             
             loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
 
-            if FIRST :
-
+            if current_step == 0 and FIRST:
                 print('--- Initial loss on train: {}'.format(loss.item()))
-                FIRST = False
+                FIRST = False 
 
             # Compute gradients for each layer and update weights
             loss.backward()  # backward pass: computes gradients

@@ -36,27 +36,73 @@ class iCaRL() :
         return indexes
 
     def construct_exemplars(self, net, s, t, herding=False):
-        # dataloader: contins only current classes
+        # dataloader: contains only current classes
         # s = startng labels 
         # t = ending label
         m = math.floor(self.K / t)
-        count_per_class = []
 
-        # iteriamo sulle nuove classi
-        for c in range(s, t) :
-            indexes = self.get_indexes_from_label(c)
-            samples_of_this_class = Subset(self.dataset, indexes)
+        if herding : 
+            with torch.no_grad(): 
+                for c in range(s, t) :  
+                    features_list = []
+                    class_mean = self.means_of_each_class[c]
+                    indexes = self.get_indexes_from_label(c)
+                    samples_of_this_class = Subset(self.dataset, indexes)
 
-            samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
-            random.shuffle(samples_of_this_class_python)
+                    ######### DA QUI IN POI #######
+                    #images = torch.stack((samples_of_this_class[0][0].clone()) # .detach().clone()
+                    
+                    net.train(False)
+                    for image, _ in samples_of_this_class :
+                        image = image.view(1, image.size(0),image.size(1),image.size(2))
+                        image = image.to(self.device)
+                        # feature map
+                        features = net.feature_map(image) 
+                        # normalization
+                        features = self.L2_norm(features).data.cpu().numpy()
+                        print(features)
+                        print(features[0])
+                        
+                        features_list.append(features[0])
 
-            if not herding:
+                    features_exemplars = []
+                    features = np.array(features_list) #phi
+                    i_added = []
+                    for k in range(m):
+                        # sum
+                        S = np.sum(features_exemplars, axis=0)
+                        mean_exemplars = 1.0/(k+1) * (features + S)
+                        # normalize mean exemplars
+                        mean_exemplars = self.L2_norm(mean_exemplars,numpy=True)
+                        # argmin 
+                        # i = np.argmin(np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ))
+
+                        # argsort : torna vettore di indici ordinati per distanze crescenti 
+                        i_vector = np.argsort( np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ) s)
+
+                        i = 0
+                        while i_vector[i] in i_added :
+                            i+=1 
+                        # TO DO controllare non si prendano sempre gli stessi exemplars
+                        i_added.append(i)
+
+                        # update exemplars
+                        features_exemplars.append(features[i])
+                        # add index to examplers_set
+                        self.exemplars[c].append(indexes[i])
+
+
+        else:
+            # iteriamo sulle nuove classi
+            for c in range(s, t) :
+                indexes = self.get_indexes_from_label(c)
+                samples_of_this_class = Subset(self.dataset, indexes)
+
+                samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
+                random.shuffle(samples_of_this_class_python)
+
                 for i in range(m):
                     self.exemplars[c].append(samples_of_this_class_python[i][1])
-            else:
-                # compute features
-                    
-                pass
 
         return
 
@@ -69,7 +115,7 @@ class iCaRL() :
 
         return
 
-    def L2_norm(self, features): 
+    def L2_norm(self, features, numpy=False): 
         # L2-norm on rows
 
         #return [feature/torch.sqrt(torch.sum(torch.square(feature))).item() for feature in features]
@@ -81,6 +127,9 @@ class iCaRL() :
             sqrt = torch.sqrt(somma).item()
             features_norm[i] += feature/sqrt
             #print(feature/sqrt)
+        
+        if numpy:
+            return features_norm.detach().cpu().numpy()
 
         return features_norm
         
