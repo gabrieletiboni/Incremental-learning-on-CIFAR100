@@ -88,12 +88,16 @@ class iCaRL() :
 
                         print('i added:', i)
                         # TO DO controllare che non si prendano sempre gli stessi exemplars
-                        i_added.append(i)
+                        
+                        # i_added.append(i)
+                        i_added.append(i_vector[i])
 
                         # update exemplars
-                        features_exemplars.append(features[i])
+                        # features_exemplars.append(features[i])
+                        features_exemplars.append(features[i_vector[i]])
                         # add index to examplers_set
-                        self.exemplars[c].append(indexes[i])
+                        # self.exemplars[c].append(indexes[i])
+                        self.exemplars[c].append(indexes[i_vector[i]])
 
                     sys.exit()
 
@@ -173,14 +177,18 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, use_all_outputs=True) :
 
         # Forward pass to the network
         outputs = net(images)
 
+
+        if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
+            ending_label = 100
+
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
-            targets_bce = torch.zeros([self.batch_size, 100], dtype=torch.float32)
+            targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             # one hot encoding
             for i in range(self.batch_size):
                 targets_bce[i][labels[i]] = 1
@@ -188,7 +196,7 @@ class iCaRL() :
             targets_bce = targets_bce.to(self.device)
 
             #loss = criterion(outputs[:, 0:ending_label], targets_bce)
-            loss = criterion(outputs[:, 0:100], targets_bce)
+            loss = criterion(outputs[:, 0:ending_label], targets_bce) 
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
