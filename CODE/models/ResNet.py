@@ -56,8 +56,10 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
 
         # First conv layer
+        # self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1,
+        #                        bias=False)
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1,
-                               bias=False)
+                               bias=True)
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU(inplace=True)
 
@@ -84,7 +86,7 @@ class ResNet(nn.Module):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                          kernel_size=1, stride=stride, bias=True),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
