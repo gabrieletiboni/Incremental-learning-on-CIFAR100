@@ -61,30 +61,41 @@ class iCaRL() :
                         features_list.append(features[0])
 
                     features_exemplars = []
-                    features = np.array(features_list) #phi
+                    features = np.array(features_list)
                     i_added = []
+
+                    print('Norm of class_mean:', np.linalg.norm(class_mean))
                     for k in range(m):
+                        print('Starting k:', k)
                         # sum
                         S = np.sum(features_exemplars, axis=0)
+                        print('S:', S)
                         mean_exemplars = 1.0/(k+1) * (features + S)
                         # normalize mean exemplars
                         mean_exemplars = self.L2_norm(torch.tensor(mean_exemplars).to(self.device),numpy=True)
+
+                        print('Norm of mean_exemplars:', np.linalg.norm(class_mean))
                         # argmin 
                         # i = np.argmin(np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ))
 
                         # argsort : torna vettore di indici ordinati per distanze crescenti 
                         i_vector = np.argsort( np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ) )
+                        print('i_vector[:5]:', i_vector[:5])
 
                         i = 0
                         while i_vector[i] in i_added :
                             i+=1 
-                        # TO DO controllare non si prendano sempre gli stessi exemplars
+
+                        print('i added:', i)
+                        # TO DO controllare che non si prendano sempre gli stessi exemplars
                         i_added.append(i)
 
                         # update exemplars
                         features_exemplars.append(features[i])
                         # add index to examplers_set
                         self.exemplars[c].append(indexes[i])
+
+                    sys.exit()
 
 
         else:
@@ -239,7 +250,7 @@ class iCaRL() :
 
             optimizer.zero_grad() # Zero-ing the gradients
             
-            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
+            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)            
 
             if current_step == 0 and FIRST:
                 print('--- Initial loss on train: {}'.format(loss.item()))
