@@ -86,9 +86,9 @@ class iCaRL() :
                         while i_vector[i] in i_added :
                             i+=1 
 
-                        print('i added:', i)
+                        print('i added:', i_vector[i])
                         # TO DO controllare che non si prendano sempre gli stessi exemplars
-                        
+
                         # i_added.append(i)
                         i_added.append(i_vector[i])
 
@@ -181,7 +181,6 @@ class iCaRL() :
 
         # Forward pass to the network
         outputs = net(images)
-
 
         if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
             ending_label = 100
