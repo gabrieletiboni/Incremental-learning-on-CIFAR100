@@ -215,7 +215,7 @@ class iCaRL() :
 
             targets_bce = targets_bce.to(self.device)
 
-            loss = criterion(outputs[:, 0:ending_label], targets_bce)
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/128/100
 
         return loss
     
