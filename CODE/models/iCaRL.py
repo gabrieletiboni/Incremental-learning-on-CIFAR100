@@ -149,13 +149,13 @@ class iCaRL() :
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
         means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
 
-        with torch.no_grad() : 
+        with torch.no_grad() :
+            net.train(False)
             for images,labels in dataloader:
                 # Bring data over the device of choice
                 images = images.to(self.device)
                 labels = labels.to(self.device)
-
-                net.train(False)
+                
                 # feature map (custom)
                 features = net.feature_map(images)
                 # print(features.size()) #should be BATCH_SIZE x 64
@@ -196,9 +196,10 @@ class iCaRL() :
 
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
-            targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
+            targets_bce = torch.zeros([len(labels), ending_label], dtype=torch.float32)
             # one hot encoding
-            for i in range(self.batch_size):
+            # for i in range(self.batch_size):
+            for i in range(len(labels)):
                 targets_bce[i][labels[i]] = 1
             
             targets_bce = targets_bce.to(self.device)
@@ -211,8 +212,8 @@ class iCaRL() :
                 outputs_old = net_old(images)
                 sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
-            targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
-            for i in range(self.batch_size):
+            targets_bce = torch.zeros([len(labels), ending_label], dtype=torch.float32)
+            for i in range(len(labels)):
                 if labels[i] in current_classes:
                     # nuovo
                     targets_bce[i][labels[i]] = 1.
