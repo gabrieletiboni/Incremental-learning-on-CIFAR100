@@ -66,10 +66,10 @@ class iCaRL() :
 
                     # print('Norm of class_mean:', np.linalg.norm(class_mean))
                     for k in range(m):
-                        print('Starting k:', k)
+                        # print('Starting k:', k)
                         # sum
                         S = np.sum(features_exemplars, axis=0)
-                        print('S:', S)
+                        # print('S:', S)
                         mean_exemplars = 1.0/(k+1) * (features + S)
                         # normalize mean exemplars
                         mean_exemplars = self.L2_norm(torch.tensor(mean_exemplars).to(self.device),numpy=True)
