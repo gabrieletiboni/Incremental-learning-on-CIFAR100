@@ -176,18 +176,25 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, use_all_outputs=True) :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, use_all_outputs=None) :
 
         # Forward pass to the network
         outputs = net(images)
 
-        # if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
-        #     ending_label = 100
+        DIV = 1
+        if use_all_outputs == 2: 
+            # variante 2
+            # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
+            
+            ending_label = 100
+        elif use_all_outputs == 3: 
+            # TEST TEST TEST TEST
+            # variante 3
+            DIV = 128*100
+            criterion = nn.BCEWithLogitsLoss(reduction='sum')
+        
 
-        # print('Ending label:', ending_label)
-
-        # TEST TEST TEST TEST
-        criterion = nn.BCEWithLogitsLoss(reduction='sum')
+        print('Ending label:', ending_label)
 
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
@@ -215,7 +222,7 @@ class iCaRL() :
 
             targets_bce = targets_bce.to(self.device)
 
-            loss = criterion(outputs[:, 0:ending_label], targets_bce)/128/100
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
 
         return loss
     
@@ -248,7 +255,7 @@ class iCaRL() :
 
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, var = VAR) :
         FIRST = True
 
         ###net.train() # Sets module in training mode
@@ -261,7 +268,7 @@ class iCaRL() :
 
             optimizer.zero_grad() # Zero-ing the gradients
             
-            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)            
+            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, use_all_outputs=VAR)            
 
             if current_step == 0 and FIRST:
                 print('--- Initial loss on train: {}'.format(loss.item()))
