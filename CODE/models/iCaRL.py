@@ -196,10 +196,9 @@ class iCaRL() :
 
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
-            targets_bce = torch.zeros([len(labels), ending_label], dtype=torch.float32)
+            targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             # one hot encoding
-            # for i in range(self.batch_size):
-            for i in range(len(labels)):
+            for i in range(self.batch_size):
                 targets_bce[i][labels[i]] = 1
             
             targets_bce = targets_bce.to(self.device)
@@ -212,8 +211,8 @@ class iCaRL() :
                 outputs_old = net_old(images)
                 sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
-            targets_bce = torch.zeros([len(labels), ending_label], dtype=torch.float32)
-            for i in range(len(labels)):
+            targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
+            for i in range(self.batch_size):
                 if labels[i] in current_classes:
                     # nuovo
                     targets_bce[i][labels[i]] = 1.
