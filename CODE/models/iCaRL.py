@@ -184,7 +184,7 @@ class iCaRL() :
         # if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
         #     ending_label = 100
 
-        print('Ending label:', ending_label)
+        # print('Ending label:', ending_label)
 
         # TEST TEST TEST TEST
         criterion = nn.BCEWithLogitsLoss(reduction='sum')
