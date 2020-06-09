@@ -64,7 +64,7 @@ class iCaRL() :
                     features = np.array(features_list)
                     i_added = []
 
-                    print('Norm of class_mean:', np.linalg.norm(class_mean))
+                    # print('Norm of class_mean:', np.linalg.norm(class_mean))
                     for k in range(m):
                         print('Starting k:', k)
                         # sum
@@ -74,19 +74,19 @@ class iCaRL() :
                         # normalize mean exemplars
                         mean_exemplars = self.L2_norm(torch.tensor(mean_exemplars).to(self.device),numpy=True)
 
-                        print('Norm of mean_exemplars:', np.linalg.norm(class_mean))
+                        # print('Norm of mean_exemplars:', np.linalg.norm(class_mean))
                         # argmin 
                         # i = np.argmin(np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ))
 
                         # argsort : torna vettore di indici ordinati per distanze crescenti 
                         i_vector = np.argsort( np.sqrt( np.sum( (class_mean - mean_exemplars)**2, axis=1) ) )
-                        print('i_vector[:5]:', i_vector[:5])
+                        # print('i_vector[:5]:', i_vector[:5])
 
                         i = 0
                         while i_vector[i] in i_added :
                             i+=1 
 
-                        print('i added:', i_vector[i])
+                        # print('i added:', i_vector[i])
                         # TO DO controllare che non si prendano sempre gli stessi exemplars
 
                         # i_added.append(i)
@@ -98,9 +98,6 @@ class iCaRL() :
                         # add index to examplers_set
                         # self.exemplars[c].append(indexes[i])
                         self.exemplars[c].append(indexes[i_vector[i]])
-
-                    sys.exit()
-
 
         else:
             # iteriamo sulle nuove classi
