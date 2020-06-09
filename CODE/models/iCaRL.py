@@ -179,8 +179,13 @@ class iCaRL() :
         # Forward pass to the network
         outputs = net(images)
 
-        if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
-            ending_label = 100
+        # if use_all_outputs: # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
+        #     ending_label = 100
+
+        print('Ending label:', ending_label)
+
+        # TEST TEST TEST TEST
+        criterion = nn.BCEWithLogitsLoss(reduction='sum')
 
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
@@ -192,7 +197,7 @@ class iCaRL() :
             targets_bce = targets_bce.to(self.device)
 
             #loss = criterion(outputs[:, 0:ending_label], targets_bce)
-            loss = criterion(outputs[:, 0:ending_label], targets_bce) 
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/128/100
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
