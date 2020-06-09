@@ -187,7 +187,7 @@ class iCaRL() :
             # variante 2
             # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
             ending_label = 100
-            print('Ending label:', ending_label)
+            #print('Ending label:', ending_label)
         elif bce_var == 3: 
             # TEST TEST TEST TEST
             # variante 3
