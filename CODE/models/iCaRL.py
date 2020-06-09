@@ -207,6 +207,7 @@ class iCaRL() :
             loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         else:
             with torch.no_grad():
+                net_old.train(False)
                 outputs_old = net_old(images)
                 sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
