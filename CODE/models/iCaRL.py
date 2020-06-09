@@ -181,6 +181,7 @@ class iCaRL() :
         # Forward pass to the network
         outputs = net(images)
 
+        # variante 1 (default)
         DIV = 1
         if bce_var == 2: 
             # variante 2
@@ -203,7 +204,7 @@ class iCaRL() :
             targets_bce = targets_bce.to(self.device)
 
             #loss = criterion(outputs[:, 0:ending_label], targets_bce)
-            loss = criterion(outputs[:, 0:ending_label], targets_bce)/128/100
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         else:
             with torch.no_grad():
                 outputs_old = net_old(images)
