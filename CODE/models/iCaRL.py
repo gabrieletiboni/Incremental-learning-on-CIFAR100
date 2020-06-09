@@ -5,7 +5,9 @@ import torch
 import torchvision
 import math
 import random
+
 from torch.utils.data import Subset
+import torch.nn as nn
 
 
 class iCaRL() :
