@@ -143,7 +143,6 @@ class iCaRL() :
             return features_norm.detach().cpu().numpy()
 
         return features_norm
-        
 
     def compute_means(self, net, dataloader, ending_label):
         # dataloader = current classes + exemplars
