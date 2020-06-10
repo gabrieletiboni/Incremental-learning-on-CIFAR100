@@ -30,7 +30,7 @@ def get_indexes_from_labels(dataset, labels):
 
 
 def train_validation_split(dataset, indexes, train_size=0.9, random_state=None):
-	# split indexes 
+	# split indexes between train and validation
 	targets = dataset.targets
 
 	train_indexes, val_indexes, _, _ = train_test_split(list(range(0, len(indexes))), list(range(0, len(indexes))), train_size=train_size, stratify=[targets[i] for i in indexes], random_state=random_state)
@@ -79,7 +79,7 @@ def imgshow(img, mean=None, std=None):
 	return
 
 def compute_mean_and_std(dataset):
-	"""**Compute means and stds to normalize**"""
+	"""Compute means and stds of the images to normalize Tensors"""
 	means_1 = []
 	means_2 = []
 	means_3 = []

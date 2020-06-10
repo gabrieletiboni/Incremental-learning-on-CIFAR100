@@ -15,10 +15,10 @@ class iCaRL() :
     def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
         self.device = device
         self.batch_size = batch_size
+        self.dataset = dataset          
         self.K = K       # max number of exemplars
         self.exemplars = [list() for i in range(100)]   # list of lists containing indexes of exemplars
-        self.means_of_each_class = None                 # 
-        self.dataset = dataset          
+        self.means_of_each_class = None  
 
     def flattened_exemplars(self):
         flat_list = []
@@ -89,7 +89,7 @@ class iCaRL() :
                             i+=1 
 
                         # print('i added:', i_vector[i])
-                        # TO DO controllare che non si prendano sempre gli stessi exemplars
+                        # TODO controllare che non si prendano sempre gli stessi exemplars
 
                         # i_added.append(i)
                         i_added.append(i_vector[i])
@@ -176,23 +176,26 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=None) :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
 
         # Forward pass to the network
         outputs = net(images)
-
-        # variante 1 (default)
-        DIV = 1
-        if bce_var == 2: 
-            # variante 2
+        
+        if bce_var == 1 : 
+            # variante 1
+            DIV = 1
+        elif bce_var == 2 : 
+            # variante 2 (default)
             # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
             ending_label = 100
             #print('Ending label:', ending_label)
-        elif bce_var == 3: 
-            # TEST TEST TEST TEST
+        elif bce_var == 3 : 
             # variante 3
+            # divide per un fattore costante fin dall'inizio la BCELoss
             DIV = 128*100
             criterion = nn.BCEWithLogitsLoss(reduction='sum')
+        else : 
+            raise RuntimeError("Scegliere una variante opportuna bce_loss_with_logits\n varianti 1 2 3")
 
         if starting_label == 0:
             #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
@@ -256,8 +259,7 @@ class iCaRL() :
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1) :
         FIRST = True
-
-        ###net.train() # Sets module in training mode
+        ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
 
         # Iterate over the dataset
         for images, labels in train_dataloader_cum_exemplars :
