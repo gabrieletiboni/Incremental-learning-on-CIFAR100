@@ -530,28 +530,6 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
 	return confusion_matrix(y_test, y_pred)
 
-# def dump_on_gspreadsheet(path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters=None):
-	
-# 	auth.authenticate_user()
-# 	gc = gspread.authorize(GoogleCredentials.get_application_default())
-	
-# 	# Open
-# 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
-
-# 	# select worksheet
-# 	worksheet = sheet.worksheet('Foglio1')
-
-# 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
-# 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
-# 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
-# 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
-# 	values = [path, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, use_validation, hyperparameters]
-
-# 	# Update with new values
-# 	worksheet.append_row(values, value_input_option='USER_ENTERED')
-
-# 	return
-
 def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
@@ -562,7 +540,8 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	worksheet = sheet.worksheet('Foglio1')
+	#worksheet = sheet.worksheet('Finetuning_JointTraining')
+	worksheet = sheet.worksheet('finetuning_old')
 
 	if user == 0:
 		user_name = 'Roberto'
@@ -596,7 +575,9 @@ def dump_on_gspreadsheet_nme(path, user, link, method, losses_train, accuracies_
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	worksheet = sheet.worksheet('icarl')
+	#worksheet = sheet.worksheet('iCaRL')
+	worksheet = sheet.worksheet('icarl_old')
+
 
 	if user == 0:
 		user_name = 'Roberto'
@@ -617,7 +598,6 @@ def dump_on_gspreadsheet_nme(path, user, link, method, losses_train, accuracies_
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
-
 	return
 
 def beep():

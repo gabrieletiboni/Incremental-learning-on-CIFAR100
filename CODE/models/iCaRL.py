@@ -182,6 +182,7 @@ class iCaRL() :
         # Forward pass to the network
         outputs = net(images)
         
+        DIV = 1
         if bce_var == 1 : 
             # variante 1
             DIV = 1
