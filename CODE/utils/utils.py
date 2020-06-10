@@ -584,9 +584,7 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	#worksheet = sheet.worksheet('iCaRL')
-	worksheet = sheet.worksheet('icarl_old')
-
+	worksheet = sheet.worksheet('iCaRL')
 
 	if user == 0:
 		user_name = 'Roberto'
