@@ -16,11 +16,13 @@ class iCaRL() :
         self.device = device
         self.batch_size = batch_size
         self.dataset = dataset          
-        self.K = K       # max number of exemplars
-        self.exemplars = [list() for i in range(100)]   # list of lists containing indexes of exemplars
+        self.K = K # max number of exemplars
+        self.exemplars = [list() for i in range(100)]  # list of lists containing indexes of exemplars
         self.means_of_each_class = None  
 
     def flattened_exemplars(self):
+        # trasforma la lista di liste di exemplar
+        # return list of indexes of exemplars
         flat_list = []
         for sublist in self.exemplars:
             for item in sublist:
@@ -209,6 +211,7 @@ class iCaRL() :
             #loss = criterion(outputs[:, 0:ending_label], targets_bce)
             loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         else:
+            # calcoliamo i vecchi output con la vecchia rete
             with torch.no_grad():
                 net_old.train(False)
                 outputs_old = net_old(images)
@@ -217,15 +220,12 @@ class iCaRL() :
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size):
                 if labels[i] in current_classes:
-                    # nuovo
                     targets_bce[i][labels[i]] = 1.
 
                 targets_bce[i,0:starting_label] = sigmoids_old[i]
 
             targets_bce = targets_bce.to(self.device)
-
             loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
-
         return loss
     
     def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
