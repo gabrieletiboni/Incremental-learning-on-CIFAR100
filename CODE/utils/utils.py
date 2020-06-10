@@ -530,7 +530,7 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
 	return confusion_matrix(y_test, y_pred)
 
-def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type_loss, cifar_norm, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -540,8 +540,10 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	#worksheet = sheet.worksheet('Finetuning_JointTraining')
-	worksheet = sheet.worksheet('finetuning_old')
+	if do_joint_training :
+		worksheet = sheet.worksheet('Jointraining')
+	else : 
+		worksheet = sheet.worksheet('Finetuning')
 
 	if user == 0:
 		user_name = 'Roberto'
@@ -552,12 +554,19 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	else:
 		raise RuntimeError('Dare uno user a dump_on_gspreadsheet che sia valido')
 
+	if type_loss == False :
+		type_loss = 'CE'
+	else :
+		type_loss = 'BCE'
+
 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, user_name, method, str(duration), losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
+	avg_incremental_accuracy = np.mean(accuracies_eval)
+
+	values = [path, link, user_name, method, seed, type_loss, cifar_norm, str(duration), losses_train, losses_eval, accuracies_train, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
@@ -565,7 +574,7 @@ def dump_on_gspreadsheet(path, user, link, method, losses_train, losses_eval, ac
 	return
 
 
-def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -590,11 +599,12 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 
 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
-	avg_incremental_accuracy = np.mean(accuracies_eval_nme)
+	avg_incremental_accuracy = np.mean(accuracies_eval)
+	avg_incremental_accuracy_nme = np.mean(accuracies_eval_nme)
 	accuracies_eval_nme = '[' + ', '.join([str(elem) for elem in accuracies_eval_nme]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, user_name, method, seed, use_herding, cifar_norm, str(duration), losses_train, accuracies_train, avg_incremental_accuracy, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
+	values = [path, link, user_name, method, seed, use_herding, cifar_norm, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
