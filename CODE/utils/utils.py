@@ -574,7 +574,7 @@ def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type
 	return
 
 
-def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None) :
+def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, bce_var, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -602,7 +602,7 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	accuracies_eval_nme = '[' + ', '.join([str(elem) for elem in accuracies_eval_nme]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, user_name, method, seed, use_herding, cifar_norm, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters)]
+	values = [path, link, user_name, method, seed, use_herding, cifar_norm, bce_var, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
