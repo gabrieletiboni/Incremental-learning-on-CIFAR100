@@ -559,12 +559,12 @@ def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type
 	else :
 		type_loss = 'BCE'
 
+	avg_incremental_accuracy = np.mean(accuracies_eval)
 	losses_train = '[' + ', '.join([str(elem) for elem in losses_train]) + "]" 
 	losses_eval = '[' + ', '.join([str(elem) for elem in losses_eval]) + "]"
 	accuracies_train = '[' + ', '.join([str(elem) for elem in accuracies_train]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	avg_incremental_accuracy = np.mean(accuracies_eval)
 
 	values = [path, link, user_name, method, seed, type_loss, cifar_norm, str(duration), losses_train, losses_eval, accuracies_train, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, use_validation, str(hyperparameters)]
 
