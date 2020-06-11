@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+Finetuning_,0.2,2,128,1e-05
