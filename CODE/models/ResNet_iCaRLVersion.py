@@ -17,7 +17,8 @@ Taken from https://github.com/hshustc/CVPR19_Incremental_Learning/tree/master/ci
         - Mettere inplace=False su tutti i ReLu (tanto non dovrebbe servire)
         - Provare a mettere batch norm dopo i ReLU (https://www.reddit.com/r/MachineLearning/comments/67gonq/d_batch_normalization_before_or_after_relu/)
         - Provare a mettere batch norm dopo la addition nei resNet blocks dovrebbe peggiorare ()
-        - Provare a non mettere ReLu
+        - Provare a non mettere ReLu sull'ultimissimo basic block in modo che le features vengano anche negative volendo [83.2, 75,6]
+        - Inizializzare a He.Normal anche l'ultimo FC di output
 
 """
 
@@ -84,6 +85,7 @@ class ResNet(nn.Module):
 
         # Last and only FC layer
         self.fc = nn.Linear(64 * block.expansion, num_classes)
+        nn.init.kaiming_normal_(self.fc.weight, mode='fan_out', nonlinearity='sigmoid')
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
