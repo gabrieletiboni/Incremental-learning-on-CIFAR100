@@ -15,16 +15,7 @@ class LwF() :
         self.device = device
         self.batch_size = batch_size
         self.K = K       # max number of exemplars
-        self.exemplars = [list() for i in range(100)]   # list of lists containing indexes of exemplars
-        self.means_of_each_class = None                 # 
-        self.dataset = dataset          
-
-    def flattened_exemplars(self) :
-        flat_list = []
-        for sublist in self.exemplars:
-            for item in sublist:
-                flat_list.append(item)
-        return flat_list
+        self.dataset = dataset
 
     def get_indexes_from_label(self, label):
         targets = self.dataset.targets
@@ -35,62 +26,6 @@ class LwF() :
                 indexes.append(i)
 
         return indexes
-
-    def construct_exemplars(self, net, s, t, herding=False):
-        # dataloader: contains only current classes
-        # s = startng labels 
-        # t = ending label
-        m = math.floor(self.K / t)
-        count_per_class = []
-
-        if herding : 
-            with torch.no_grad(): 
-                for c in range(s, t) :
-                    indexes = self.get_indexes_from_label(c)
-                    samples_of_this_class = Subset(self.dataset, indexes)
-
-                    ######### DA QUI IN POI #######
-                    images = torch.stack((samples_of_this_class[0][0].clone()) # .detach().clone()
-                    
-                    for image, _ in samples_of_this_class[1:]:
-                        images = torch.cat( (images, image) )
-
-
-                    net.train(False)
-                    for image, _ in samples_of_this_class: 
-                        # Bring data over the device of choice
-                        image = image.to(self.device)
-
-                        
-                        # feature map (custom)
-                        features = net.feature_map(image)
-                        # print(features.size()) #should be BATCH_SIZE x 64
-
-                        # normalization
-                        features = self.L2_norm(features)
-
-        else:
-            # iteriamo sulle nuove classi
-            for c in range(s, t) :
-                indexes = self.get_indexes_from_label(c)
-                samples_of_this_class = Subset(self.dataset, indexes)
-
-                samples_of_this_class_python = [(image, indexes[index]) for index,image in enumerate(samples_of_this_class)]
-                random.shuffle(samples_of_this_class_python)
-
-                for i in range(m):
-                    self.exemplars[c].append(samples_of_this_class_python[i][1])
-
-        return
-
-    def reduce_exemplars(self,s,t):
-        # m = target number of exemplars
-        m = math.floor(self.K / t)
-
-        for i in range(s) : 
-            self.exemplars[i] = self.exemplars[i][:m]
-
-        return
 
     def L2_norm(self, features): 
         # L2-norm on rows
@@ -107,7 +42,6 @@ class LwF() :
 
         return features_norm
         
-
     def compute_means(self, net, dataloader, ending_label):
         sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
         counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
@@ -172,6 +106,7 @@ class LwF() :
 
         return loss
     
+    ## FINO A QUA
     def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
 
         running_corrects = 0
