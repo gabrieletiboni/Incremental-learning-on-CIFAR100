@@ -9,7 +9,7 @@ from torch.utils.data import Subset
 
 
 class LwF() :
-    # Learning without Forgetting (LwF) class implemented as described in iCaRL paper
+    '''Learning without Forgetting (LwF) class implemented as described in iCaRL paper'''
     def __init__(self, dataset, batch_size=0, K=2000, device='cuda') :
 
         self.device = device
