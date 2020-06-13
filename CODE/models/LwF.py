@@ -42,7 +42,7 @@ class LwF() :
 
         return features_norm
 
-def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
 
         # Forward pass to the network
         outputs = net(images)
