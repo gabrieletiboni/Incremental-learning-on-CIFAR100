@@ -42,36 +42,55 @@ class LwF() :
 
         return features_norm
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
+def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
 
         # Forward pass to the network
         outputs = net(images)
+        
+        DIV = 1
+        if bce_var == 1 :
+            # variante 1
+            DIV = 1
+        elif bce_var == 2 : 
+            # variante 2 (default)
+            # Così usi già l'informazione che avrai più classi in futuro e cerchi già di adattare la rete con la BCE, incoraggiando un basso output anche nelle classi successive
+            ending_label = 100
+            #print('Ending label:', ending_label)
+        elif bce_var == 3 : 
+            # variante 3
+            # divide per un fattore costante fin dall'inizio la BCELoss
+            DIV = 128*100
+            criterion = nn.BCEWithLogitsLoss(reduction='sum')
+        else : 
+            raise RuntimeError("Scegliere una variante opportuna bce_loss_with_logits\n varianti 1 2 3")
 
         if starting_label == 0:
+            #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
+            # one hot encoding
             for i in range(self.batch_size):
                 targets_bce[i][labels[i]] = 1
-
+            
             targets_bce = targets_bce.to(self.device)
 
-            loss = criterion(outputs[:, 0:ending_label], targets_bce)
+            #loss = criterion(outputs[:, 0:ending_label], targets_bce)
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         else:
+            # calcoliamo i vecchi output con la vecchia rete
             with torch.no_grad():
+                net_old.train(False)
                 outputs_old = net_old(images)
                 sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size):
                 if labels[i] in current_classes:
-                    # nuovo
                     targets_bce[i][labels[i]] = 1.
 
                 targets_bce[i,0:starting_label] = sigmoids_old[i]
 
             targets_bce = targets_bce.to(self.device)
-
-            loss = criterion(outputs[:, 0:ending_label], targets_bce)
-
+            loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         return loss
     
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1) :
