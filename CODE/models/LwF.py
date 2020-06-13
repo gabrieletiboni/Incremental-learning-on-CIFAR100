@@ -41,38 +41,6 @@ class LwF() :
             #print(feature/sqrt)
 
         return features_norm
-        
-    def compute_means(self, net, dataloader, ending_label):
-        sums = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
-        counts = torch.zeros(ending_label, dtype=torch.int32).to(self.device)
-        means_of_each_class = torch.zeros((ending_label,64), dtype=torch.float64).to(self.device)
-
-        with torch.no_grad() : 
-            for images,labels in dataloader:
-                # Bring data over the device of choice
-                images = images.to(self.device)
-                labels = labels.to(self.device)
-
-                net.train(False)
-                # feature map (custom)
-                features = net.feature_map(images)
-                # print(features.size()) #should be BATCH_SIZE x 64
-
-                # normalization
-                features = self.L2_norm(features)
-
-                for i,sample in enumerate(features):
-                    sums[labels[i]] += sample 
-                    counts[labels[i]] += 1
-
-            for i,count in enumerate(counts):
-                means_of_each_class[i] += sums[i]/float(count)
-            
-            #print(means_of_each_class)
-            
-            self.means_of_each_class = self.L2_norm(means_of_each_class)
-            #print(self.means_of_each_class[:5,:])
-        return
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label) :
 
@@ -106,6 +74,31 @@ class LwF() :
 
         return loss
     
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1) :
+        FIRST = True
+        ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
+
+        # Iterate over the dataset
+        for images, labels in train_dataloader_cum_exemplars :
+            # Bring data over the device of choice
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            optimizer.zero_grad() # Zero-ing the gradients
+            
+            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var)            
+
+            if current_step == 0 and FIRST:
+                print('--- Initial loss on train: {}'.format(loss.item()))
+                FIRST = False 
+
+            # Compute gradients for each layer and update weights
+            loss.backward()  # backward pass: computes gradients
+            optimizer.step() # update weights based on accumulated gradients
+
+        return loss
+
+
     ## FINO A QUA
     def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
 
@@ -135,29 +128,3 @@ class LwF() :
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
 
         return accuracy_eval
-
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step) :
-        FIRST = True
-        # Iterate over the dataset
-        for images, labels in train_dataloader_cum_exemplars :
-            # Bring data over the device of choice
-            images = images.to(self.device)
-            labels = labels.to(self.device)
-
-            net.train() # Sets module in training mode
-
-            optimizer.zero_grad() # Zero-ing the gradients
-            
-            loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label)			
-
-            if current_step == 0 and FIRST:
-                print('--- Initial loss on train: {}'.format(loss.item()))
-                FIRST = False 
-
-            # Compute gradients for each layer and update weights
-            loss.backward()  # backward pass: computes gradients
-            optimizer.step() # update weights based on accumulated gradients
-
-        return loss
-
-

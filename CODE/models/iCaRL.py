@@ -183,7 +183,7 @@ class iCaRL() :
         outputs = net(images)
         
         DIV = 1
-        if bce_var == 1 : 
+        if bce_var == 1 :
             # variante 1
             DIV = 1
         elif bce_var == 2 : 

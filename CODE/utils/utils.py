@@ -312,7 +312,6 @@ def dump_to_csv(losses_train, losses_eval, accuracies_train, accuracies_eval, gr
 	if path == None:
 		raise RuntimeError("Dare un path come parametro al dump_to_csv")
 
-
 	if len(losses_eval) < len(losses_train):
 		return
 
@@ -325,7 +324,7 @@ def dump_to_csv(losses_train, losses_eval, accuracies_train, accuracies_eval, gr
 
 
 def dump_hyperparameters(path, lr, weight_decay, num_epochs, method, batch_size):
-
+	
 	df = pd.DataFrame({'Method': [method], 'LR': [lr], 'num_epochs': [num_epochs], 'batch_size': [batch_size], 'weight_decay': [weight_decay]})
 
 	df.to_csv(path+'/hyperparameters.csv', encoding='utf-8', index=False)
@@ -530,7 +529,7 @@ def get_conf_matrix_nme(net, eval_dataloader, icarl, ending_label, device):
 
 	return confusion_matrix(y_test, y_pred)
 
-def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type_loss, cifar_norm, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, hyperparameters=None) :
+def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type_loss, cifar_norm, losses_train, losses_eval, accuracies_train, accuracies_eval, accuracies_eval_curr, duration, use_validation, lwf=False, hyperparameters=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -542,7 +541,9 @@ def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type
 	# select worksheet
 	if do_joint_training :
 		worksheet = sheet.worksheet('Jointraining')
-	else : 
+	elif lwf : 
+		worksheet = sheet.worksheet('LwF')
+	else :
 		worksheet = sheet.worksheet('Finetuning')
 
 	if user == 0:
