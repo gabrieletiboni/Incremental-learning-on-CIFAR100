@@ -4,7 +4,7 @@ import torch.nn as nn
 import math
 import torch.utils.model_zoo as model_zoo
 import torch
-from .. import functional as F
+from torch.nn.functional import functional as F
 
 """
 Credits to @hshustc
