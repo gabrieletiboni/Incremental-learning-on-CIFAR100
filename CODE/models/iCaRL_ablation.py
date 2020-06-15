@@ -259,7 +259,7 @@ class iCaRL() :
 
             ce_loss = CE_criterion(outputs, labels)#/batch_size
 
-            targets = probabilities_old[:, :starting_label]
+            targets = probabilities_old[:, :starting_label].to('cuda')
             dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
 
             print(f"[CE loss: {ce_loss.item()/batch_size} | Dist loss: {dist_loss.item()/batch_size}")
