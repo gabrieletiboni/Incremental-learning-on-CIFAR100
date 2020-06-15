@@ -232,9 +232,12 @@ class iCaRL() :
         CE_criterion = nn.CrossEntropyLoss(reduction='sum')
         L2_criterion = L2Loss(reduction='sum')
         softmax = torch.nn.Softmax(dim=-1)
-        batch_size = outputs.size[0]
 
         outputs = net(images)
+        
+        batch_size = outputs.size[0]
+
+        
         if outputs_normalization == 'softmax':
             outputs = softmax(outputs)
         elif outputs_normalization == 'sigmoid':
