@@ -262,10 +262,9 @@ class iCaRL() :
             targets = probabilities_old[:, :starting_label]
             dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
 
-            print(f"[CE loss: {ce_loss/batch_size} | Dist loss: {dist_loss/batch_size}")
+            print(f"[CE loss: {ce_loss.item()/batch_size} | Dist loss: {dist_loss.item()/batch_size}")
 
             loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
-
 
         return loss
 
@@ -375,4 +374,3 @@ class iCaRL() :
             optimizer.step() # update weights based on accumulated gradients
 
         return loss
-
