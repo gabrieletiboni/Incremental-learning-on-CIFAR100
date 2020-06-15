@@ -42,11 +42,10 @@ class L2Loss():
         batch_size = outputs.shape[0]
         num_classes = outputs.shape[1]
 
-        losses = torch.zeros((batch_size), dtype=torch.float32)
+        losses = torch.zeros((batch_size), dtype=torch.float32).to('cuda')
 
         for i, (output, target) in enumerate(zip(outputs, targets)):
-            curr = torch.sum(self.alpha*torch.square(output-target))
-            losses[i] = curr
+            losses[i] = torch.sum(self.alpha*torch.square(output-target))
 
         if self.reduction == 'mean':
             losses = torch.sum(losses)/batch_size
