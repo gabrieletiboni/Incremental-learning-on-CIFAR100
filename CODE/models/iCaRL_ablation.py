@@ -245,7 +245,7 @@ class iCaRL() :
         #     raise RuntimeError('Errore nella scelta outputs_normalization in CE_L2')
 
         if starting_label == 0:
-            loss = criterion(outputs, labels)/batch_size
+            loss = CE_criterion(outputs, labels)/batch_size
 
         else:
             with torch.no_grad():
@@ -261,10 +261,10 @@ class iCaRL() :
 
             targets = probabilities_old[:, :starting_label]
             dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
-            
-            print(f"[CE loss: {ce_loss} | Dist loss: {dist_loss}")
 
-            loss = ce_loss + (distillation_weight*dist_loss)
+            print(f"[CE loss: {ce_loss/batch_size} | Dist loss: {dist_loss/batch_size}")
+
+            loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
 
 
         return
