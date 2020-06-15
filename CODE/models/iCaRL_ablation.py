@@ -357,9 +357,9 @@ class iCaRL() :
 
             optimizer.zero_grad() # Zero-ing the gradients
             
-            if loss_type = 'bce':
+            if loss_type == 'bce':
                 loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var)            
-            elif loss_type = 'ce_l2':
+            elif loss_type == 'ce_l2':
                 loss = self.CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='softmax')
 
             if current_step == 0 and FIRST:
