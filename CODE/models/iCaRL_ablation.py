@@ -234,16 +234,15 @@ class iCaRL() :
         softmax = torch.nn.Softmax(dim=-1)
 
         outputs = net(images)
-        
-        batch_size = outputs.size[0]
 
+        batch_size = outputs.shape[0]
         
-        if outputs_normalization == 'softmax':
-            outputs = softmax(outputs)
-        elif outputs_normalization == 'sigmoid':
-            outputs = torch.sigmoid(outputs)
-        else:
-            raise RuntimeError('Errore nella scelta outputs_normalization in CE_L2')
+        # if outputs_normalization == 'softmax':
+        #     outputs = softmax(outputs)
+        # elif outputs_normalization == 'sigmoid':
+        #     outputs = torch.sigmoid(outputs)
+        # else:
+        #     raise RuntimeError('Errore nella scelta outputs_normalization in CE_L2')
 
         if starting_label == 0:
             loss = criterion(outputs, labels)/batch_size
@@ -262,6 +261,8 @@ class iCaRL() :
 
             targets = probabilities_old[:, :starting_label]
             dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
+            
+            print(f"[CE loss: {ce_loss} | Dist loss: {dist_loss}")
 
             loss = ce_loss + (distillation_weight*dist_loss)
 
