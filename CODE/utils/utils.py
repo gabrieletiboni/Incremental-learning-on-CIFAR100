@@ -575,7 +575,7 @@ def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type
 	return
 
 
-def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, bce_var, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None) :
+def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, bce_var, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None, clf=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -585,7 +585,10 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	worksheet = sheet.worksheet('iCaRL')
+	if clf == 'knn' : 
+		worksheet = sheet.worksheet('ablation_loss')
+	else : 
+		worksheet = sheet.worksheet('iCaRL')
 
 	if user == 0:
 		user_name = 'Roberto'
