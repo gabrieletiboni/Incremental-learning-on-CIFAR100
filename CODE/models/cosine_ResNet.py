@@ -4,6 +4,7 @@ import torch.nn as nn
 import math
 import torch.utils.model_zoo as model_zoo
 import torch
+from .. import functional as F
 
 """
 Credits to @hshustc
@@ -133,7 +134,7 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
 
-        x = self.fc(x)
+        x = self.CosineLinears(x)
 
         return x
 
