@@ -71,7 +71,7 @@ class ResNet(nn.Module):
 
         # Cosine Norm
         self.linear = CosineLinear(64 * block.expansion, num_classes)
-        nn.init.kaiming_normal_(self.fc.weight, mode='fan_out', nonlinearity='sigmoid')
+        #nn.init.kaiming_normal_(self.fc.weight, mode='fan_out', nonlinearity='sigmoid')
 
         self.out_dim = 64 * block.expansion
         
