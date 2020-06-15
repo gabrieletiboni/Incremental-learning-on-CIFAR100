@@ -103,7 +103,7 @@ class ResNet(nn.Module):
             for i in range(1, blocks-1):
                 layers.append(block(self.inplanes, planes))
             layers.append(block(self.inplanes, planes, last=True))
-            
+
         return nn.Sequential(*layers)
 
     def feature_map(self, x):
@@ -166,8 +166,7 @@ class CosineLinear(nn.Module):
         if self.sigma is not None:	
             self.sigma.data.fill_(1) #for initializaiton of sigma	
     def forward(self, input):	
-        out = F.linear(F.normalize(input, p=2,dim=1), \	
-                F.normalize(self.weight, p=2, dim=1))	
+        out = F.linear(F.normalize(input, p=2,dim=1), F.normalize(self.weight, p=2, dim=1))	
         if self.sigma is not None:	
             out = self.sigma * out	
         return out
