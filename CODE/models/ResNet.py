@@ -1,4 +1,5 @@
-"""resnet_cifar.py messa nel forum da cermelli"""
+# resnet_cifar.py fornita nel forum da Cermelli
+# modifica
 
 import torch.nn as nn
 import math
