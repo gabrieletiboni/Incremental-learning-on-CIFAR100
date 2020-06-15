@@ -267,7 +267,7 @@ class iCaRL() :
             loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
 
 
-        return
+        return loss
 
     def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
 
