@@ -224,7 +224,7 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def CE_L2_loss(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='softmax'):
+    def CE_L2_loss(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid'):
 
         # Classification loss -> CE
         # Distillation loss -> L2
@@ -237,12 +237,12 @@ class iCaRL() :
 
         batch_size = outputs.shape[0]
         
-        # if outputs_normalization == 'softmax':
-        #     outputs = softmax(outputs)
-        # elif outputs_normalization == 'sigmoid':
-        #     outputs = torch.sigmoid(outputs)
-        # else:
-        #     raise RuntimeError('Errore nella scelta outputs_normalization in CE_L2')
+        if outputs_normalization == 'softmax':
+            outputs_normalized = softmax(outputs)
+        elif outputs_normalization == 'sigmoid':
+            outputs_normalized = torch.sigmoid(outputs)
+        else:
+            raise RuntimeError('Errore nella scelta outputs_normalization in CE_L2')
 
         if starting_label == 0:
             loss = CE_criterion(outputs, labels)/batch_size
@@ -260,7 +260,7 @@ class iCaRL() :
             ce_loss = CE_criterion(outputs, labels)#/batch_size
 
             targets = probabilities_old[:, :starting_label].to('cuda')
-            dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
+            dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets)#/batch_size
 
             print(f"[CE loss: {ce_loss.item()} | Dist loss: {dist_loss.item()}")
 
