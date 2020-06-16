@@ -46,6 +46,7 @@ class L2Loss():
 
         for i, (output, target) in enumerate(zip(outputs, targets)):
             losses[i] = torch.sum(self.alpha*torch.square(output-target))
+            print(losses[i])
 
         if self.reduction == 'mean':
             losses = torch.sum(losses)/batch_size
@@ -229,7 +230,7 @@ class iCaRL() :
         # Distillation loss -> L2
 
         CE_criterion = nn.CrossEntropyLoss(reduction='sum')
-        L2_criterion = L2Loss(reduction='sum', alpha=0.1)
+        L2_criterion = L2Loss(reduction='sum', alpha=1)
         softmax = torch.nn.Softmax(dim=-1)
 
         outputs = net(images)
@@ -261,7 +262,7 @@ class iCaRL() :
             targets = probabilities_old[:, :starting_label].to('cuda')
             dist_loss = L2_criterion(outputs[:, :starting_label], targets)#/batch_size
 
-            # print(f"[CE loss: {ce_loss.item()/batch_size} | Dist loss: {dist_loss.item()/batch_size}")
+            print(f"[CE loss: {ce_loss.item()} | Dist loss: {dist_loss.item()}")
 
             loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
 
