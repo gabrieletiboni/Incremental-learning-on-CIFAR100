@@ -46,7 +46,7 @@ class L2Loss():
 
         for i, (output, target) in enumerate(zip(outputs, targets)):
             losses[i] = torch.sum(self.alpha*torch.square(output-target))
-            print(losses[i], len(output), len(target), output, target)
+            # print(losses[i], len(output), len(target), output, target)
 
         if self.reduction == 'mean':
             losses = torch.sum(losses)/batch_size
