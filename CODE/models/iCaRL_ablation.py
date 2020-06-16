@@ -230,7 +230,7 @@ class iCaRL() :
         # Distillation loss -> L2
 
         CE_criterion = nn.CrossEntropyLoss(reduction='sum')
-        L2_criterion = L2Loss(reduction='sum', alpha=1)
+        L2_criterion = L2Loss(reduction='sum', alpha=30)
         softmax = torch.nn.Softmax(dim=-1)
 
         outputs = net(images)
