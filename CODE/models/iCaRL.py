@@ -224,7 +224,7 @@ class iCaRL() :
                     targets_bce[i][labels[i]] = 1.
                     
                 else:
-                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+                    # targets_bce[i,0:starting_label] = sigmoids_old[i]
                     targets_bce[i][labels[i]] = 1.
                 
 
