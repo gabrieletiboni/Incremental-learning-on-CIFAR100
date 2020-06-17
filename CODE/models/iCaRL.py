@@ -224,7 +224,6 @@ class iCaRL() :
                     targets_bce[i][labels[i]] = 1.
                     
                 else:
-                    #todo: Fare che fai classification per gli exemplars anche dal loro gruppo in su, poi in giù usi i vecchi outputs
                     starting_label_curr = math.floor(labels[i]/10)*10
                     if starting_label_curr >= 10:
                         targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
