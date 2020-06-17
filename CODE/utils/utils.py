@@ -575,7 +575,7 @@ def dump_on_gspreadsheet(path, user, link, method, seed, do_joint_training, type
 	return
 
 
-def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, bce_var, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None, clf=None) :
+def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_norm, bce_var, losses_train, accuracies_train, accuracies_eval_nme, accuracies_eval, accuracies_eval_curr, duration, hyperparameters=None, ablation=None, params=None) :
 	scope = ['https://www.googleapis.com/auth/spreadsheets']
 	credentials = ServiceAccountCredentials.from_json_keyfile_name('/content/Incremental-learning-on-image-recognition/config/credentials.json', scope)
 
@@ -585,9 +585,11 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	if clf == 'knn' : 
+	if ablation == 'clf' : 
+		worksheet = sheet.worksheet('ablation_clf')
+	elif ablation == 'loss' : 
 		worksheet = sheet.worksheet('ablation_loss')
-	else : 
+	else :
 		worksheet = sheet.worksheet('iCaRL')
 
 	if user == 0:
@@ -606,7 +608,7 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	accuracies_eval_nme = '[' + ', '.join([str(elem) for elem in accuracies_eval_nme]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, user_name, method, seed, use_herding, cifar_norm, bce_var, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters)]
+	values = [path, link, user_name, method, seed, use_herding, cifar_norm, bce_var, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters), str(parmas)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')

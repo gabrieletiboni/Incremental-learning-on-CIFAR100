@@ -158,17 +158,17 @@ class CosineLinear(nn.Module):
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features))	
         if sigma:	
             self.sigma = nn.Parameter(torch.Tensor(1))	
-            print(self.sigma)
         else:	
             self.register_parameter('sigma', None)	
+        print(self.sigma)
         self.reset_parameters()	
 
     def reset_parameters(self):	
         stdv = 1. / math.sqrt(self.weight.size(1))	
-        self.weight.data.uniform_(-stdv, stdv)	
+        self.weight.data.uniform_(-stdv, stdv)
         if self.sigma is not None:	
             self.sigma.data.fill_(1) #for initializaiton of sigma	
-            
+
     def forward(self, input):	
         out = F.linear(F.normalize(input, p=2,dim=1), F.normalize(self.weight, p=2, dim=1))	
         if self.sigma is not None:	
