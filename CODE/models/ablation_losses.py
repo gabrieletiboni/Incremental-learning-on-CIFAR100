@@ -48,8 +48,9 @@ class L2Loss():
             losses = torch.sum(losses)
 
         return losses
+	
 
-def CE_L2_loss(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid'):
+def CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid'):
 
     # Classification loss -> CE
     # Distillation loss -> L2
