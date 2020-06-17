@@ -50,13 +50,13 @@ class L2Loss():
         return losses
 	
 
-def CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid'):
+def CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=100):
 
     # Classification loss -> CE
     # Distillation loss -> L2
 
     CE_criterion = nn.CrossEntropyLoss(reduction='sum')
-    L2_criterion = L2Loss(reduction='sum', alpha=100)
+    L2_criterion = L2Loss(reduction='sum', alpha=alpha)
     softmax = torch.nn.Softmax(dim=-1)
 
     outputs = net(images)
@@ -83,11 +83,6 @@ def CE_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
                 probabilities_old = torch.sigmoid(outputs_old)
 
         ce_loss = CE_criterion(outputs, labels)#/batch_size
-        
-        # test_sigmoid_outputs = softmax(outputs)
-        # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
-        # for i in range(len(outputs)):
-        #     print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
 
         targets = probabilities_old[:, :starting_label].to('cuda')
         dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets)#/batch_size
