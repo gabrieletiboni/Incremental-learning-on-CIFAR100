@@ -246,7 +246,6 @@ class iCaRL() :
 
         if starting_label == 0:
             loss = CE_criterion(outputs, labels)/batch_size
-
         else:
             with torch.no_grad():
                 net_old.train(False)
@@ -262,7 +261,7 @@ class iCaRL() :
             test_sigmoid_outputs = softmax(outputs)
             # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
             for i in range(len(outputs)):
-                print('i',i,'- ', outputs[i, labels[i]].item())
+                print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
 
             targets = probabilities_old[:, :starting_label].to('cuda')
             dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets)#/batch_size
