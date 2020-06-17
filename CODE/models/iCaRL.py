@@ -275,7 +275,7 @@ class iCaRL() :
 
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce') :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100) :
         FIRST = True
         ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
 
@@ -290,15 +290,17 @@ class iCaRL() :
             if loss_type == 'bce':
                 loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var)            
             elif loss_type == 'ce_l2':
-                loss = CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid')
+                loss = CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=alpha)
+            else:
+                raise RuntimeError("Fornire una loss a update_representation")
 
             if current_step == 0 and FIRST:
                 print('--- Initial loss on train: {}'.format(loss.item()))
                 FIRST = False 
 
             # Compute gradients for each layer and update weights
-            loss.backward()  # backward pass: computes gradients
-            optimizer.step() # update weights based on accumulated gradients
+            loss.backward()
+            optimizer.step()
 
         return loss
 
