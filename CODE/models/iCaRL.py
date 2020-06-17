@@ -223,7 +223,7 @@ class iCaRL() :
                     # targets_bce[i,0:starting_label] = sigmoids_old[i]
                     targets_bce[i][labels[i]] = 1.
                 
-                # --- PROVA  
+                # ---- PROVA  
                 # else:
                 #     starting_label_curr = math.floor(labels[i]/10)*10
                 #     if starting_label_curr >= 10:
@@ -237,7 +237,7 @@ class iCaRL() :
                 #     # targets_bce[i,0:starting_label] = sigmoids_old[i]
                 #     # targets_bce[i][labels[i]] = 1.
 
-                # --- COM'ERA PRIMA
+                # ---- COM'ERA PRIMA
                 targets_bce[i,0:starting_label] = sigmoids_old[i]
                 
 
