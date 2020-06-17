@@ -48,9 +48,9 @@ class L2Loss():
 
         return losses
 
-def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid'):
+def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=100):
 
-    # Binary Classification loss -> BCE (new )
+    # Binary Classification loss -> BCE (new)
     # Distillation loss -> L2 (old net)
 
     BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean') 
