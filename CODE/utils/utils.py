@@ -585,11 +585,11 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	sheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing')
 
 	# select worksheet
-	if ablation == 'clf' : 
+	if ablation == 'clf': 
 		worksheet = sheet.worksheet('ablation_clf')
-	elif ablation == 'loss' : 
+	elif ablation == 'loss': 
 		worksheet = sheet.worksheet('ablation_loss')
-	else :
+	else:
 		worksheet = sheet.worksheet('iCaRL')
 
 	if user == 0:
