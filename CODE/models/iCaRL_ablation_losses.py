@@ -259,13 +259,15 @@ class iCaRL() :
 
             ce_loss = CE_criterion(outputs, labels)#/batch_size
             
-            test_sigmoid_outputs = torch.sigmoid(outputs)
-            print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
+            test_sigmoid_outputs = softmax(outputs)
+            # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
+            for i in range(len(outputs)):
+                print('i',i,'- ', outputs[i, labels[i]].item())
 
             targets = probabilities_old[:, :starting_label].to('cuda')
             dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets)#/batch_size
 
-            # print(f"[CE loss: {ce_loss.item()} | Dist loss: {dist_loss.item()}")
+            print(f"[CE loss: {ce_loss.item()} | Dist loss: {dist_loss.item()}")
 
             loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
 
