@@ -608,7 +608,7 @@ def dump_on_gspreadsheet_nme(path, user, link, method, seed, use_herding, cifar_
 	accuracies_eval_nme = '[' + ', '.join([str(elem) for elem in accuracies_eval_nme]) + "]" 
 	accuracies_eval = '[' + ', '.join([str(elem) for elem in accuracies_eval]) + "]" 
 	accuracies_eval_curr = '[' + ', '.join([str(elem) for elem in accuracies_eval_curr]) + "]" 
-	values = [path, link, user_name, method, seed, use_herding, cifar_norm, bce_var, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters), str(parmas)]
+	values = [path, link, user_name, method, seed, use_herding, cifar_norm, bce_var, str(duration), losses_train, accuracies_train, avg_incremental_accuracy_nme, accuracies_eval_nme, avg_incremental_accuracy, accuracies_eval, accuracies_eval_curr, str(hyperparameters), str(params)]
 
 	# Update with new values
 	worksheet.append_row(values, value_input_option='USER_ENTERED')
