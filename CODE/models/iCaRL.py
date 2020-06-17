@@ -6,6 +6,7 @@ import torchvision
 import math
 import random
 from .ablation_losses import *
+from .ablation_losses2 import *
 
 from torch.utils.data import Subset
 import torch.nn as nn
@@ -222,7 +223,7 @@ class iCaRL() :
                 if labels[i] in current_classes:
                     targets_bce[i,0:starting_label] = sigmoids_old[i]
                     targets_bce[i][labels[i]] = 1.
-                
+
                 # ---- PROVA  
                 # else:
                 # targets_bce[i][labels[i]] = 1.
@@ -291,6 +292,8 @@ class iCaRL() :
                 loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var)            
             elif loss_type == 'ce_l2':
                 loss = CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=alpha)
+            elif loss_type == 'bce_l2':
+                loss = BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=alpha)
             else:
                 raise RuntimeError("Fornire una loss a update_representation")
 
