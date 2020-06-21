@@ -139,9 +139,9 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
 			one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
 			if labels[i] in current_classes:
-		    	one_hot_targets[i][labels[i]] = 1
+				one_hot_targets[i][labels[i]] = 1
 
-		    # one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
+			# one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
 		
 		one_hot_targets = one_hot_targets.to('cuda')
