@@ -98,7 +98,7 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
     # Classification loss -> L2
     # Distillation loss -> L2
 
-    L2_criterion = L2Loss(reduction='sum', alpha=alpha)
+    L2_criterion = L2Loss(reduction='hardmean', alpha=alpha)
     softmax = torch.nn.Softmax(dim=-1)
 
     outputs = net(images)
@@ -123,7 +123,7 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
     	
     	one_hot_targets = one_hot_targets.to('cuda')
 
-        loss = L2_criterion(outputs_normalized, one_hot_targets)/batch_size
+        loss = L2_criterion(outputs_normalized, one_hot_targets)
     else:
         with torch.no_grad():
             net_old.train(False)
@@ -158,7 +158,7 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
 
         # loss = (clf_loss + (distillation_weight*dist_loss))/batch_size
 
-        loss = L2_criterion(outputs_normalized, one_hot_targets)/batch_size
+        loss = L2_criterion(outputs_normalized, one_hot_targets)
 
     return loss
 
