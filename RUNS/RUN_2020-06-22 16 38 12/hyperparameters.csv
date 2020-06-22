@@ -1,2 +1,6 @@
 Method,LR,num_epochs,batch_size,weight_decay
+<<<<<<< HEAD
 iCARL_test_con3001,2.0,70,128,1e-05
+=======
+iCARL_test_con2001randomseed,2.0,70,128,1e-05
+>>>>>>> b5b159881acb37a144356e97b9aad2cab62ba3e5
