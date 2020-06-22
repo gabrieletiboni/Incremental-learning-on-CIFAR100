@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+iCARL_l2_l2_conherdinge2000,5.0,70,128,1e-05
