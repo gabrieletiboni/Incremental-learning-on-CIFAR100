@@ -164,7 +164,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
     # Binary Classification loss -> BCE (new)
     # Distillation loss -> L2 (old net)
 
-    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean') # divide per il numero di classi/elementi in output
+    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean')
     L2_criterion = L2Loss(reduction='hardmean', alpha=alpha) #(reduction='sum', alpha=alpha)
 
     softmax = torch.nn.Softmax(dim=-1)
@@ -193,10 +193,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         ## ONE-HOT
         # print(one_hot_targets.size()) 
         # print(outputs_normalized.size()) # torch.Size([128, 100])
-        #print(outputs_normalized[:,0:ending_label].size())
+        # print(outputs_normalized[:,0:ending_label].size())
         loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
-        # BCE computed da starting label fino a 100 (BCE_VAR=2)
+        # BCE
+
+        # compute old output
         with torch.no_grad():
             net_old.train(False)
             outputs_old = net_old(images)
@@ -207,13 +209,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
                 probabilities_old = torch.sigmoid(outputs_old)
 
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
-        # one hot encoding
+        # one-hot encoding
         for i in range(batch_size):
             # old labels
             one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
-            # new labels (current group of classes) 
-            # from starting_label to ending_label
+            # new labels (current group of classes)
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
         
@@ -229,7 +230,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         # for i in range(len(outputs)):
         #     print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
 
-        # distillation loss on old outputs (old net)
+        # MSE - distillation loss on old outputs (old net)
         targets = probabilities_old[:, :starting_label].to('cuda')
         dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/(batch_size*)
 
