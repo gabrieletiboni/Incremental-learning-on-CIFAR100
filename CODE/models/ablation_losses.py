@@ -141,8 +141,6 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
 			if labels[i] in current_classes:
 				one_hot_targets[i][labels[i]] = 1
 
-			# one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
-
 		
 		one_hot_targets = one_hot_targets.to('cuda')
 
@@ -207,10 +205,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
+        
             # old labels
             one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
-            # new labels (current group of classes)
+            # new labels (current group of classes) 
+            # from starting_label to ending_label
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
         
@@ -219,13 +219,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         print(outputs[:,0:ending_label].size())
         print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs[:,starting_label:ending_label], one_hot_targets) #/batch_size
+        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets) #/batch_size
 
-        test_sigmoid_outputs = softmax(outputs)
-        
-        print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
-        for i in range(len(outputs)):
-            print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
+        # test_sigmoid_outputs = softmax(outputs)
+        # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
+        # for i in range(len(outputs)):
+        #     print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
 
         # old outputs (old net)
         targets = probabilities_old[:, :starting_label].to('cuda')
