@@ -69,6 +69,8 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
 
     if starting_label == 0:
+
+        ## ONE HOT
         loss = BCE_criterion(outputs, labels)/batch_size
     else:
         with torch.no_grad():
