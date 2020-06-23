@@ -180,8 +180,9 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
 
     if starting_label == 0:
+        ending_label = 100
         # first group of classes -> just BCE (no L2 distillation)
-        one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
+        one_hot_targets = torch.zeros([batch_size, 100], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
             one_hot_targets[i][labels[i]] = 1
@@ -191,7 +192,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         # print(one_hot_targets.size()) 
         # print(outputs_normalized.size()) # torch.Size([128, 100])
         # print(outputs_normalized[:,0:ending_label].size())
-        loss = BCE_criterion(outputs_normalized[:,0:ending_label], one_hot_targets)/batch_size
+        loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
         with torch.no_grad():
             net_old.train(False)
@@ -230,9 +231,9 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         targets = probabilities_old[:, :starting_label].to('cuda')
         dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/batch_size
 
-        #print(f"[CE loss: {bce_loss.item()} | Dist loss: {dist_loss.item()}")
+        print(f"[CE loss: {bce_loss.item()} | Dist loss: {dist_loss.item()}")
 
         loss = (bce_loss + (distillation_weight*dist_loss))/batch_size
-        #print(loss.item())
+        print(loss.item())
 
     return loss
