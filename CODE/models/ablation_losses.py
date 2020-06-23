@@ -182,6 +182,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
 
     if starting_label == 0:
+        # first group of classes -> just BCE (no L2 distillation)
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
@@ -213,11 +214,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
         
+        # one_hot_targets contains one-hot encoding of all classes seen until now (cumulative)
         one_hot_targets = one_hot_targets.to('cuda')
 
-        print(outputs[:,0:starting_label].size())
+        print(outputs[:,0:ending_label].size())
         print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs[:,0:starting_label], one_hot_targets) #/batch_size
+        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets) #/batch_size
 
         test_sigmoid_outputs = softmax(outputs)
         
