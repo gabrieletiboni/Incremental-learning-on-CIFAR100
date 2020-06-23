@@ -224,7 +224,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         # print(outputs[:,0:ending_label].size())
         # print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs[:,starting_label:ending_label], one_hot_targets) #/batch_size 
+        bce_loss = BCE_criterion(outputs[:,starting_label:ending_label], one_hot_targets[:,starting_label:ending_label]) #/batch_size 
 
         # test_sigmoid_outputs = softmax(outputs)
         # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
