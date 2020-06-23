@@ -182,34 +182,34 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
 
     if starting_label == 0:
-		one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
-		# one hot encoding
-		for i in range(batch_size):
-		    one_hot_targets[i][labels[i]] = 1
-		
-		one_hot_targets = one_hot_targets.to('cuda')
+        one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
+        # one hot encoding
+        for i in range(batch_size):
+            one_hot_targets[i][labels[i]] = 1
+
+        one_hot_targets = one_hot_targets.to('cuda')
         ## ONE HOT
         # TODO provare output al posto di outputs_normalized
         loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
         with torch.no_grad():
-			net_old.train(False)
-			outputs_old = net_old(images)
-			# sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
-			if outputs_normalization == 'softmax':
-				probabilities_old = softmax(outputs_old)
-			elif outputs_normalization == 'sigmoid':
-				probabilities_old = torch.sigmoid(outputs_old)
+            net_old.train(False)
+            outputs_old = net_old(images)
+            # sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
+            if outputs_normalization == 'softmax':
+                probabilities_old = softmax(outputs_old)
+            elif outputs_normalization == 'sigmoid':
+                probabilities_old = torch.sigmoid(outputs_old)
 
-		one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
-		# one hot encoding
-		for i in range(batch_size):
-			one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
+        one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
+        # one hot encoding
+        for i in range(batch_size):
+            one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
-			if labels[i] in current_classes:
-				one_hot_targets[i][labels[i]] = 1
+            if labels[i] in current_classes:
+                one_hot_targets[i][labels[i]] = 1
 
-			# one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
+            # one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
         
 		one_hot_targets = one_hot_targets.to('cuda')
