@@ -164,8 +164,9 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
     # Binary Classification loss -> BCE (new)
     # Distillation loss -> L2 (old net)
 
-    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean') 
-    L2_criterion = L2Loss(reduction='sum', alpha=100)
+    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean') # divide per il numero di classi/elementi in output
+    L2_criterion = L2Loss(reduction='hardmean', alpha=alpha) #(reduction='sum', alpha=alpha)
+
     softmax = torch.nn.Softmax(dim=-1)
 
     outputs = net(images)
@@ -180,20 +181,22 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
 
     if starting_label == 0:
+        # BCE computed da starting label fino a 100 (BCE_VAR=2)
         ending_label = 100
         # first group of classes -> just BCE (no L2 distillation)
-        one_hot_targets = torch.zeros([batch_size, 100], dtype=torch.float32)
+        one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
             one_hot_targets[i][labels[i]] = 1
 
         one_hot_targets = one_hot_targets.to('cuda')
         ## ONE HOT
-        # print(one_hot_targets.size()) 
-        # print(outputs_normalized.size()) # torch.Size([128, 100])
-        # print(outputs_normalized[:,0:ending_label].size())
+        print(one_hot_targets.size()) 
+        print(outputs_normalized.size()) # torch.Size([128, 100])
+        #print(outputs_normalized[:,0:ending_label].size())
         loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
+        # BCE computed da starting label fino a 100 (BCE_VAR=2)
         with torch.no_grad():
             net_old.train(False)
             outputs_old = net_old(images)
@@ -206,7 +209,6 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
-        
             # old labels
             one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
@@ -220,20 +222,20 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         # print(outputs[:,0:ending_label].size())
         # print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets) #/batch_size
+        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets)/batch_size 
 
         # test_sigmoid_outputs = softmax(outputs)
         # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
         # for i in range(len(outputs)):
         #     print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
 
-        # old outputs (old net)
+        # distillation loss on old outputs (old net)
         targets = probabilities_old[:, :starting_label].to('cuda')
-        dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/batch_size
+        dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/(batch_size*)
 
-        print(f"[CE loss: {bce_loss.item()} | Dist loss: {dist_loss.item()}")
+        print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
-        loss = (bce_loss + (distillation_weight*dist_loss))/batch_size
+        loss = (bce_loss + (distillation_weight*dist_loss)) #/batch_size
         print(loss.item())
 
     return loss
