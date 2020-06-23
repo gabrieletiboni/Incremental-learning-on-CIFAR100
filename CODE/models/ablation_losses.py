@@ -217,8 +217,8 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         # one_hot_targets contains one-hot encoding of all classes seen until now (cumulative)
         one_hot_targets = one_hot_targets.to('cuda')
 
-        print(outputs[:,0:ending_label].size())
-        print(one_hot_targets.size())
+        # print(outputs[:,0:ending_label].size())
+        # print(one_hot_targets.size())
         bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets) #/batch_size
 
         # test_sigmoid_outputs = softmax(outputs)
@@ -233,5 +233,6 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         print(f"[CE loss: {bce_loss.item()} | Dist loss: {dist_loss.item()}")
 
         loss = (bce_loss + (distillation_weight*dist_loss))/batch_size
+        print(loss)
 
     return loss
