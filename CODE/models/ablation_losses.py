@@ -161,3 +161,52 @@ def L2_L2_loss(net, net_old, criterion, images, labels, current_classes, startin
 
 	return loss
 
+def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=100):
+
+    # Binary Classification loss -> BCE (new)
+    # Distillation loss -> L2 (old net)
+
+    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean') 
+    L2_criterion = L2Loss(reduction='sum', alpha=100)
+    softmax = torch.nn.Softmax(dim=-1)
+
+    outputs = net(images)
+
+    batch_size = outputs.shape[0] 
+    
+    if outputs_normalization == 'softmax':
+        outputs_normalized = softmax(outputs)
+    elif outputs_normalization == 'sigmoid':
+        outputs_normalized = torch.sigmoid(outputs)
+    else:
+        raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
+
+    if starting_label == 0:
+
+        ## ONE HOT
+        loss = BCE_criterion(outputs, labels)/batch_size
+    else:
+        with torch.no_grad():
+            net_old.train(False)
+            outputs_old = net_old(images)
+            # sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
+            if outputs_normalization == 'softmax':
+                probabilities_old = softmax(outputs_old)
+            elif outputs_normalization == 'sigmoid':
+                probabilities_old = torch.sigmoid(outputs_old)
+
+        ce_loss = BCE_criterion(outputs, labels) #/batch_size
+        
+        test_sigmoid_outputs = softmax(outputs)
+        print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
+        for i in range(len(outputs)):
+            print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
+
+        targets = probabilities_old[:, :starting_label].to('cuda')
+        dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/batch_size
+
+        print(f"[CE loss: {ce_loss.item()} | Dist loss: {dist_loss.item()}")
+
+        loss = (ce_loss + (distillation_weight*dist_loss))/batch_size
+
+    return loss
