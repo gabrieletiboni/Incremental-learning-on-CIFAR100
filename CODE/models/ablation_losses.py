@@ -192,8 +192,8 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         # TODO provare output al posto di outputs_normalized
         print(one_hot_targets.size()) 
         print(outputs_normalized.size()) # torch.Size([128, 100])
-        print(outputs_normalized[0:ending_label].size())
-        loss = BCE_criterion(outputs_normalized[0:ending_label], one_hot_targets)/batch_size
+        print(outputs_normalized[,0:ending_label].size())
+        loss = BCE_criterion(outputs_normalized[,0:ending_label], one_hot_targets)/batch_size
     else:
         with torch.no_grad():
             net_old.train(False)
