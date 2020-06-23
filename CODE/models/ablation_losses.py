@@ -206,10 +206,8 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
-            # load old classes
             one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
-            # new (current) classes
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
 
@@ -217,12 +215,10 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         
         one_hot_targets = one_hot_targets.to('cuda')
 
-        print(one_hot_targets.size())
-        print(labels.size())
-        bce_loss = BCE_criterion(one_hot_targets, labels[:ending_label]) #/batch_size
+        bce_loss = BCE_criterion(outputs, one_hot_targets) #/batch_size
 
         test_sigmoid_outputs = softmax(outputs)
-
+        
         print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
         for i in range(len(outputs)):
             print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
