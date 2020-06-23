@@ -179,10 +179,11 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         outputs_normalized = torch.sigmoid(outputs)
     else:
         raise RuntimeError('Errore nella scelta outputs_normalization in BCE_L2')
-
+    
+    ending_label = 100
     if starting_label == 0:
         # BCE computed da starting label fino a 100 (BCE_VAR=2)
-        ending_label = 100
+        
         # first group of classes -> just BCE (no L2 distillation)
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
@@ -207,7 +208,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
                 probabilities_old = softmax(outputs_old)
             elif outputs_normalization == 'sigmoid':
                 probabilities_old = torch.sigmoid(outputs_old)
-
+        
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one-hot encoding
         for i in range(batch_size):
@@ -223,7 +224,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         # print(outputs[:,0:ending_label].size())
         # print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets)/batch_size 
+        bce_loss = BCE_criterion(outputs[:,0:ending_label], one_hot_targets) #/batch_size 
 
         # test_sigmoid_outputs = softmax(outputs)
         # print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
