@@ -239,7 +239,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         #print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
-        loss = (bce_loss + (distillation_weight*dist_loss))/batch_size/100 #/batch_size
+        loss = (bce_loss + dist_loss)/batch_size/100 #/batch_size
         #print(loss.item())
 
     return loss
