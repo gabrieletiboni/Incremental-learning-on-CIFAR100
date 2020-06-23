@@ -189,10 +189,9 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         one_hot_targets = one_hot_targets.to('cuda')
         ## ONE HOT
-        # TODO provare output al posto di outputs_normalized
-        print(one_hot_targets.size()) 
-        print(outputs_normalized.size()) # torch.Size([128, 100])
-        print(outputs_normalized[:,0:ending_label].size())
+        # print(one_hot_targets.size()) 
+        # print(outputs_normalized.size()) # torch.Size([128, 100])
+        # print(outputs_normalized[:,0:ending_label].size())
         loss = BCE_criterion(outputs_normalized[:,0:ending_label], one_hot_targets)/batch_size
     else:
         with torch.no_grad():
@@ -207,8 +206,10 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         one_hot_targets = torch.zeros([batch_size, ending_label], dtype=torch.float32)
         # one hot encoding
         for i in range(batch_size):
+            # load old classes
             one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
 
+            # new (current) classes
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
 
@@ -216,13 +217,16 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         
         one_hot_targets = one_hot_targets.to('cuda')
 
-        bce_loss = BCE_criterion(outputs, labels) #/batch_size
+        print(one_hot_targets.size())
+        print(labels.size())
+        bce_loss = BCE_criterion(one_hot_targets, labels) #/batch_size
 
         test_sigmoid_outputs = softmax(outputs)
+
         print('Some initial outputs:', test_sigmoid_outputs[0, labels[0]], test_sigmoid_outputs[1, labels[1]], test_sigmoid_outputs[2, labels[2]])
         for i in range(len(outputs)):
             print('i',i,'- ', test_sigmoid_outputs[i, labels[i]].item())
-
+        
         # old outputs (old net)
         targets = probabilities_old[:, :starting_label].to('cuda')
         dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/batch_size
