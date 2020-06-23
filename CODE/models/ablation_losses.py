@@ -4,8 +4,8 @@ import torch.nn as nn
 #
 # L2 Loss
 # L2Loss(outputs, targets)
-# outputs -> shape BATCH_SIZE x 100
-# targets -> shape BATCH_SIZE x 100
+# outputs -> shape BATCH_SIZE x NUM_CLASSES
+# targets -> shape BATCH_SIZE x NUM_CLASSES
 #
 class L2Loss():
     
@@ -32,7 +32,7 @@ class L2Loss():
     def __call__(self, outputs, targets):
 
         batch_size = outputs.shape[0]
-        100 = outputs.shape[1]
+        num_classes = outputs.shape[1]
 
         losses = torch.zeros((batch_size), dtype=torch.float32).to('cuda')
 
@@ -43,7 +43,7 @@ class L2Loss():
         if self.reduction == 'mean':
             losses = torch.sum(losses)/batch_size
         elif self.reduction == 'hardmean':
-            losses = torch.sum(losses)/batch_size/100
+            losses = torch.sum(losses)/batch_size/num_classes
         elif self.reduction == 'sum':
             losses = torch.sum(losses)
 
@@ -164,8 +164,8 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
     # Binary Classification loss -> BCE (new)
     # Distillation loss -> L2 (old net)
 
-    BCE_criterion = nn.BCEWithLogitsLoss(reduction='sum')
-    L2_criterion = L2Loss(reduction='sum', alpha=alpha)
+    BCE_criterion = nn.BCEWithLogitsLoss(reduction='mean')
+    L2_criterion = L2Loss(reduction='hardmean', alpha=alpha) #(reduction='sum', alpha=alpha)
 
     softmax = torch.nn.Softmax(dim=-1)
 
@@ -195,7 +195,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         # print(one_hot_targets.size()) 
         # print(outputs_normalized.size()) # torch.Size([128, 100])
         # print(outputs_normalized[:,0:ending_label].size())
-        loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size/100
+        loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
         # BCE
 
@@ -237,7 +237,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
-        loss = (bce_loss + (distillation_weight*dist_loss))/batch_size/100
+        loss = (bce_loss + (distillation_weight*dist_loss)) #/batch_size
         #print(loss.item())
 
     return loss
