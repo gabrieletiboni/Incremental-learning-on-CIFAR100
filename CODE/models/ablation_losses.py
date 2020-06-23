@@ -190,9 +190,9 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
             one_hot_targets[i][labels[i]] = 1
 
         one_hot_targets = one_hot_targets.to('cuda')
-        ## ONE HOT
-        print(one_hot_targets.size()) 
-        print(outputs_normalized.size()) # torch.Size([128, 100])
+        ## ONE-HOT
+        # print(one_hot_targets.size()) 
+        # print(outputs_normalized.size()) # torch.Size([128, 100])
         #print(outputs_normalized[:,0:ending_label].size())
         loss = BCE_criterion(outputs_normalized, one_hot_targets)/batch_size
     else:
@@ -236,6 +236,6 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
         loss = (bce_loss + (distillation_weight*dist_loss)) #/batch_size
-        print(loss.item())
+        #print(loss.item())
 
     return loss
