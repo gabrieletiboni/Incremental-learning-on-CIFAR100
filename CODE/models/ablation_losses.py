@@ -212,14 +212,12 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
             # new labels (current group of classes)
             if labels[i] in current_classes:
                 one_hot_targets[i][labels[i]] = 1
-
-            # one_hot_targets[i,0:starting_label] = probabilities_old[i, :starting_label]
         
         one_hot_targets = one_hot_targets.to('cuda')
 
-        print(outputs.size())
+        print(outputs[:,0:starting_label].size())
         print(one_hot_targets.size())
-        bce_loss = BCE_criterion(outputs, one_hot_targets) #/batch_size
+        bce_loss = BCE_criterion(outputs[:,0:starting_label], one_hot_targets) #/batch_size
 
         test_sigmoid_outputs = softmax(outputs)
         
