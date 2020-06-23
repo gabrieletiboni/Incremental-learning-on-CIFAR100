@@ -237,7 +237,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
         targets = probabilities_old[:, :starting_label].to('cuda')
         dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/(batch_size*)
 
-        print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
+        #print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
         loss = (bce_loss + (distillation_weight*dist_loss))/batch_size/100 #/batch_size
         #print(loss.item())
