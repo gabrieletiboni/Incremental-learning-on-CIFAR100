@@ -235,7 +235,7 @@ def BCE_L2_loss(net, net_old, criterion, images, labels, current_classes, starti
 
         # MSE - distillation loss on old outputs (old net)
         targets = probabilities_old[:, :starting_label].to('cuda')
-        dist_loss = L2_criterion(outputs_normalized[:, :starting_label], targets) #/(batch_size*)
+        dist_loss = L2_criterion(probabilities_old[:, :starting_label], targets) #/(batch_size*)
 
         print(f"[BCE loss: {bce_loss.item()} | L2/MSE loss: {dist_loss.item()}")
 
