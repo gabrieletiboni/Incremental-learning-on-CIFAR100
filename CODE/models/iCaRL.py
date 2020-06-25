@@ -222,20 +222,21 @@ class iCaRL() :
                 if labels[i] in current_classes:
                     targets_bce[i,0:starting_label] = sigmoids_old[i]
                     targets_bce[i][labels[i]] = 1.
+#                 else:
+#                     # Classification
+#                     targets_bce[i][labels[i]] = 1.
+                
+                # ---- Classification furba (che fanno distillation sulle classi più vecchie di loro)  
                 else:
                     targets_bce[i][labels[i]] = 1.
-                
-                # ---- PROVA  
-                # else:
-                # targets_bce[i][labels[i]] = 1.
-                # starting_label_curr = math.floor(labels[i]/10)*10
-                # if starting_label_curr >= 10:
-                #     targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
-                #     targets_bce[i][labels[i]] = 1.
-                # else:
-                #     # Exemplars delle prime 10 classi
-                #     # targets_bce[i][labels[i]] = 1.
-                #     targets_bce[i,0:starting_label] = sigmoids_old[i]
+                    starting_label_curr = math.floor(labels[i]/10)*10
+                    if starting_label_curr >= 10:
+                        targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
+                        targets_bce[i][labels[i]] = 1.
+#                     else:
+#                         # Exemplars delle prime 10 classi
+#                         # targets_bce[i][labels[i]] = 1.
+#                         targets_bce[i,0:starting_label] = sigmoids_old[i]
 
                 # targets_bce[i,0:starting_label] = sigmoids_old[i]
                 # targets_bce[i][labels[i]] = 1.
