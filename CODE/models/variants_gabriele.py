@@ -23,9 +23,6 @@ Cose aggiuntive da provare:
 
 
 
-
-
-
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,7 +34,7 @@ import torch
 def eval_model_NB(net,
 				  training_dataset,
 				  test_dataloader,
-				  dataset_length=len(test_dataset_cum),
+				  dataset_length=None,
 				  display=True, suffix=' (group)', icarl=None,
 				  normalize=True):
 
