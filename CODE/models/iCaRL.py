@@ -219,30 +219,44 @@ class iCaRL() :
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size): 
-                if labels[i] in current_classes:
-                    targets_bce[i,0:starting_label] = sigmoids_old[i]
-                    targets_bce[i][labels[i]] = 1.
+                #if labels[i] in current_classes:
+                    #targets_bce[i,0:starting_label] = sigmoids_old[i]
+                 #   targets_bce[i][labels[i]] = 1.
 #                 else:
 #                     # Classification
 #                     targets_bce[i][labels[i]] = 1.
                 
                 # ---- Classification furba (che fanno distillation sulle classi più vecchie di loro)  
-                else:
-                    targets_bce[i][labels[i]] = 1.
-                    starting_label_curr = math.floor(labels[i]/10)*10
-                    if starting_label_curr >= 10:
-                        targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
-                        targets_bce[i][labels[i]] = 1.
-#                     else:
-#                         # Exemplars delle prime 10 classi
-#                         # targets_bce[i][labels[i]] = 1.
-#                         targets_bce[i,0:starting_label] = sigmoids_old[i]
+#                 else:
+#                     targets_bce[i][labels[i]] = 1.
+#                     starting_label_curr = math.floor(labels[i]/10)*10
+#                     if starting_label_curr >= 10:
+#                         targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
+#                         targets_bce[i][labels[i]] = 1.
+##                     else:
+##                         # Exemplars delle prime 10 classi
+##                         # targets_bce[i][labels[i]] = 1.
+##                         targets_bce[i,0:starting_label] = sigmoids_old[i]
 
                 # targets_bce[i,0:starting_label] = sigmoids_old[i]
                 # targets_bce[i][labels[i]] = 1.
 
                 # ---- COM'ERA PRIMA
                 #targets_bce[i,0:starting_label] = sigmoids_old[i]
+                
+                # ClassificazionePerMetà
+                if starting_label >=50:
+                    #print('SECONDA META')
+                    if labels[i] in current_classes:
+                        targets_bce[i][labels[i]] = 1.
+                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+                else:
+                    #print('prima metà')
+                    if labels[i] in current_classes:
+                        targets_bce[i,0:starting_label] = sigmoids_old[i]
+                        targets_bce[i][labels[i]] = 1.
+                    else:
+                        targets_bce[i][labels[i]] = 1.
                 
 
             targets_bce = targets_bce.to(self.device)
