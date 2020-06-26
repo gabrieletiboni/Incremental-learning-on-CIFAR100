@@ -456,7 +456,7 @@ class iCaRL() :
                 #sys.exit()
                 y_pred = torch.argmax(new_dots).item()
                 y_pred_try = torch.argmax(dots).item()
-                if y_pred not y_pred_try  :
+                if y_pred != y_pred_try :
                     print("*************************************************************************************************************************")
                     print(dots)
                     print(new_dots)
