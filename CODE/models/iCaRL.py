@@ -394,4 +394,51 @@ class iCaRL() :
 
         return loss
 
+    # VARIATION MIA
+    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, display=True, suffix=''):
 
+        if clf == None:
+           raise RuntimeError('Errore clf non passato/fittato')
+
+        running_corrects = 0
+        for images,labels in test_dataloader:
+            # Bring data over the device of choice
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            net.train(False)
+
+            # feature map (custom)
+            features = net.feature_map(images)
+
+            # normalization
+            features = self.L2_norm(features)
+
+            for i,sample in enumerate(features):
+                dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
+                print(dots)
+                print(dots.size())
+
+                
+                feaures_cpu = features.to('cpu')
+                if scaler :
+                    feaures_cpu = scaler.transform(feaures_cpu)
+
+                y_pred = clf.predict(feaures_cpu)
+
+                print("**** probabilities classes: 0,1 ****")
+                print(clf.predict_proba(feaures_cpu))
+                # multiply prob by clf prob
+                # ...
+
+                sys.exit()
+                y_pred = torch.argmax(dots).item()
+                if y_pred == labels[i] : 
+                    running_corrects+=1
+
+        accuracy_eval = running_corrects / float(dataset_length)
+
+        if display :    
+            print('Accuracy on eval variation: ', accuracy_eval)
+
+        return accuracy_eval
