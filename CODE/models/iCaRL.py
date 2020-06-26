@@ -399,7 +399,7 @@ class iCaRL() :
         return loss
 
     # VARIATION MIA
-    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix=''):
+    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix='', impact=1):
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
@@ -424,10 +424,12 @@ class iCaRL() :
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 print(dots)
 
-                print(sample)
                 sample_cpu = sample.to('cpu')
                 print(sample_cpu)
                 
+                sample_cpu = sample_cpu.reshape(1, -1)
+                print(sample_cpu)
+
                 if use_scaler :
                     sample_cpu = scaler.transform(sample_cpu)
 
