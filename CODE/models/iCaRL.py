@@ -417,21 +417,25 @@ class iCaRL() :
 
             # normalization
             features = self.L2_norm(features)
+            
 
             for i,sample in enumerate(features):
+                # dots contiene le probabilità che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 print(dots)
-                print(dots.size())
 
+                print(sample)
+                sample_cpu = sample.to('cpu')
+                print(sample_cpu)
                 
-                feaures_cpu = features.to('cpu')
                 if use_scaler :
-                    feaures_cpu = scaler.transform(feaures_cpu)
+                    sample_cpu = scaler.transform(sample_cpu)
 
-                y_pred = clf.predict(feaures_cpu)
+                y_pred = clf.predict(sample_cpu)
+                print(y_pred)
 
                 print("**** probabilities classes: 0,1 ****")
-                print(clf.predict_proba(feaures_cpu))
+                print(clf.predict_proba(sample_cpu))
                 # multiply prob by clf prob
                 # ...
 
