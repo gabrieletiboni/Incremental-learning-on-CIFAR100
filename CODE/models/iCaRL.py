@@ -47,7 +47,7 @@ class iCaRL() :
         # dataloader: contains only current classes
         # s = startng labels 
         # t = ending label
-        m = math.floor(self.K / t)
+        m = round(self.K / float(t))
 
         if herding : 
             with torch.no_grad(): 
@@ -123,7 +123,8 @@ class iCaRL() :
 
     def reduce_exemplars(self,s,t):
         # m = target number of exemplars
-        m = math.floor(self.K / t)
+#         m = math.floor(self.K / t)
+        m = round(self.K / float(t))
 
         for i in range(s) : 
             self.exemplars[i] = self.exemplars[i][:m]
