@@ -219,12 +219,12 @@ class iCaRL() :
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             for i in range(self.batch_size): 
-                if labels[i] in current_classes:
-                    targets_bce[i,0:starting_label] = sigmoids_old[i]
-                    targets_bce[i][labels[i]] = 1.
-                else:
-                    # Classification
-                    targets_bce[i][labels[i]] = 1.
+#                 if labels[i] in current_classes:
+#                     targets_bce[i,0:starting_label] = sigmoids_old[i]
+#                     targets_bce[i][labels[i]] = 1.
+#                 else:
+#                     # Classification
+#                     targets_bce[i][labels[i]] = 1.
                 
                 # ---- Classification furba (che fanno distillation sulle classi più vecchie di loro)  
 #                 else:
@@ -245,18 +245,18 @@ class iCaRL() :
 #                 targets_bce[i,0:starting_label] = sigmoids_old[i]
                 
                 # ClassificazionePerMetà
-#                 if starting_label >=50:
-#                     #print('SECONDA META')
-#                     if labels[i] in current_classes:
-#                         targets_bce[i][labels[i]] = 1.
-#                     targets_bce[i,0:starting_label] = sigmoids_old[i]
-#                 else:
-#                     #print('prima metà')
-#                     if labels[i] in current_classes:
-#                         targets_bce[i,0:starting_label] = sigmoids_old[i]
-#                         targets_bce[i][labels[i]] = 1.
-#                     else:
-#                         targets_bce[i][labels[i]] = 1.
+                if starting_label >=50:
+                    #print('SECONDA META')
+                    if labels[i] in current_classes:
+                        targets_bce[i][labels[i]] = 1.
+                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+                else:
+                    #print('prima metà')
+                    if labels[i] in current_classes:
+                        targets_bce[i,0:starting_label] = sigmoids_old[i]
+                        targets_bce[i][labels[i]] = 1.
+                    else:
+                        targets_bce[i][labels[i]] = 1.
                 
 
             targets_bce = targets_bce.to(self.device)
