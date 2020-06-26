@@ -182,7 +182,7 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2, k_dinamico=False, k_dinamico_var='standard') :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2, k_dinamico=False, k_dinamico_var='standard', boost_until_included=None) :
 
         # Forward pass to the network
         outputs = net(images)
@@ -267,19 +267,33 @@ class iCaRL() :
 
                     elif k_dinamico_var == 'classMetà':
                         # Exemplars usati fino a metà per classification, e dopo tutti con distillation
-
-                        if starting_label >=50:
-                            #print('SECONDA META')
-                            if labels[i] in current_classes:
-                                targets_bce[i][labels[i]] = 1.
-                            targets_bce[i,0:starting_label] = sigmoids_old[i]
-                        else:
-                            #print('PRIMA META')
-                            if labels[i] in current_classes:
+                        
+                        if boost_until_included is not None:
+                            if starting_label > boost_until_included*10:
+                                #print('SECONDA META')
+                                if labels[i] in current_classes:
+                                    targets_bce[i][labels[i]] = 1.
                                 targets_bce[i,0:starting_label] = sigmoids_old[i]
-                                targets_bce[i][labels[i]] = 1.
                             else:
-                                targets_bce[i][labels[i]] = 1.
+                                #print('PRIMA META')
+                                if labels[i] in current_classes:
+                                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+                                    targets_bce[i][labels[i]] = 1.
+                                else:
+                                    targets_bce[i][labels[i]] = 1.
+                        else:
+                            if starting_label >=50:
+                                #print('SECONDA META')
+                                if labels[i] in current_classes:
+                                    targets_bce[i][labels[i]] = 1.
+                                targets_bce[i,0:starting_label] = sigmoids_old[i]
+                            else:
+                                #print('PRIMA META')
+                                if labels[i] in current_classes:
+                                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+                                    targets_bce[i][labels[i]] = 1.
+                                else:
+                                    targets_bce[i][labels[i]] = 1.
 
 
                     else:
@@ -366,7 +380,7 @@ class iCaRL() :
 
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100, k_dinamico=False, k_dinamico_var='standard') :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100, k_dinamico=False, k_dinamico_var='standard', boost_until_included=None) :
         FIRST = True
         ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
 
@@ -379,7 +393,7 @@ class iCaRL() :
             optimizer.zero_grad() # Zero-ing the gradients
             
             if loss_type == 'bce':
-                loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var, k_dinamico=k_dinamico, k_dinamico_var=k_dinamico_var)            
+                loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var, k_dinamico=k_dinamico, k_dinamico_var=k_dinamico_var, boost_until_included=boost_until_included)            
             elif loss_type == 'ce_l2':
                 loss = CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=alpha)
             elif loss_type == 'l2_l2':
