@@ -400,6 +400,7 @@ class iCaRL() :
 
     # VARIATION MIA
     def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix='', impact=1):
+        WEIGHT = impact
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
@@ -433,13 +434,31 @@ class iCaRL() :
                 if use_scaler :
                     sample_cpu = scaler.transform(sample_cpu)
 
-                y_pred = clf.predict(sample_cpu)
-                print(y_pred)
+                y_pred_clf = clf.predict(sample_cpu)
+                print(y_pred_clf) # classe predetta
+                
 
                 print("**** probabilities classes: 0,1 ****")
-                print(clf.predict_proba(sample_cpu))
-                # multiply prob by clf prob
-                # ...
+                clf_prob = clf.predict_proba(sample_cpu)
+                print(clf_prob)
+                # probabilità della predizione y_pred_clf sul sample 
+                p_first_half = clf_prob[0][0]
+                p_second_half = clf_prob[0][1]
+
+                new_dots = torch.zeros(dots.size(0)).to('cpu')
+                # multiply prob by clf_prob
+                for i,el in enumerate(dots) : 
+                    if i < 5: 
+                        print(el)
+                        new_dots[i] = WEIGHT*p_first_half*el
+                        print(el)
+                    else : 
+                        print(el)
+                        new_dots[i] = WEIGHT*p_second_half*el
+                        print(el)
+                
+                print(dots)
+                print(new_dots)
 
                 sys.exit()
                 y_pred = torch.argmax(dots).item()
