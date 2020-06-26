@@ -460,7 +460,7 @@ class iCaRL() :
                     print("*************************************************************************************************************************")
                     print(dots)
                     print(new_dots)
-                    print(f"dots: {y_pred_try}, new = {y_pred} (true label={label[i]})")
+                    print(f"dots: {y_pred_try}, new = {y_pred} (true label={labels[i]})")
                 if y_pred == labels[i] : 
                     running_corrects+=1
 
