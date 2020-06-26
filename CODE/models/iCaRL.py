@@ -419,7 +419,7 @@ class iCaRL() :
             # normalization
             features = self.L2_norm(features)
             
-
+            missclassified_per_modifica = 0
             for i,sample in enumerate(features):
                 # dots contiene le probabilità che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
@@ -454,12 +454,14 @@ class iCaRL() :
 
                 #sys.exit()
                 y_pred = torch.argmax(new_dots).item()
-                y_pred_try = torch.argmax(dots).item()
-                if y_pred != y_pred_try :
+                y_pred_old_dots = torch.argmax(dots).item()
+                if y_pred != y_pred_old_dots :
                     print("*************************************************************************************************************************")
                     # print(dots)
                     # print(new_dots)
-                    print(f"dots: {y_pred_try}, new = {y_pred} (true label={labels[i]})")
+                    print(f"dots: {y_pred_old_dots}, new = {y_pred} (true label={labels[i]})")
+                    if y_pred_old_dots == labels[i] : 
+                        missclassified_per_modifica +=1
                 if y_pred == labels[i] : 
                     running_corrects+=1
 
@@ -467,5 +469,7 @@ class iCaRL() :
 
         if display :    
             print('Accuracy on eval variation: ', accuracy_eval)
+            print(f"Misclassified per modifica mia: {missclassified_per_modifica} on {dataset_length} samples") 
+            
 
         return accuracy_eval
