@@ -361,7 +361,12 @@ class iCaRL() :
 
         return accuracy_eval
 
+<<<<<<< Updated upstream
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100, k_dinamico=False, k_dinamico_var='standard') :
+=======
+
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100) :
+>>>>>>> Stashed changes
         FIRST = True
         ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
 
