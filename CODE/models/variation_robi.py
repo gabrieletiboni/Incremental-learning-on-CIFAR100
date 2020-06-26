@@ -298,7 +298,7 @@ class iCaRL() :
                 print(clf.predict_proba(feaures_cpu))
                 # multiply prob by clf prob
                 # ...
-                
+
                 sys.exit()
                 y_pred = torch.argmax(dots).item()
                 if y_pred == labels[i] : 
@@ -309,7 +309,7 @@ class iCaRL() :
         if display :    
             print('Accuracy on eval variation: ', accuracy_eval)
 
-    return accuracy_eval
+        return accuracy_eval
 
     def eval_model_nme(self, net, test_dataloader, dataset_length, display=True, suffix=''):
 
