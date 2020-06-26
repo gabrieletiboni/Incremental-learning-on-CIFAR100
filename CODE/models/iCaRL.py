@@ -435,8 +435,7 @@ class iCaRL() :
                     sample_cpu = scaler.transform(sample_cpu)
 
                 y_pred_clf = clf.predict(sample_cpu)
-                print(y_pred_clf) # classe predetta
-
+                # print(y_pred_clf) # classe predetta
 
                 # print("**** probabilities classes: 0,1 ****")
                 clf_prob = clf.predict_proba(sample_cpu)
@@ -458,8 +457,8 @@ class iCaRL() :
                 y_pred_try = torch.argmax(dots).item()
                 if y_pred != y_pred_try :
                     print("*************************************************************************************************************************")
-                    print(dots)
-                    print(new_dots)
+                    # print(dots)
+                    # print(new_dots)
                     print(f"dots: {y_pred_try}, new = {y_pred} (true label={labels[i]})")
                 if y_pred == labels[i] : 
                     running_corrects+=1
