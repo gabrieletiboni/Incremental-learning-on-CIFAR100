@@ -423,24 +423,24 @@ class iCaRL() :
             for i,sample in enumerate(features):
                 # dots contiene le probabilità che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
-                print(dots)
+                # print(dots)
 
                 sample_cpu = sample.to('cpu')
-                print(sample_cpu)
+                # print(sample_cpu)
                 
                 sample_cpu = sample_cpu.reshape(1, -1)
-                print(sample_cpu)
+                # print(sample_cpu)
 
                 if use_scaler :
                     sample_cpu = scaler.transform(sample_cpu)
 
                 y_pred_clf = clf.predict(sample_cpu)
                 print(y_pred_clf) # classe predetta
-                
 
-                print("**** probabilities classes: 0,1 ****")
+
+                # print("**** probabilities classes: 0,1 ****")
                 clf_prob = clf.predict_proba(sample_cpu)
-                print(clf_prob)
+                # print(clf_prob)
                 # probabilità della predizione y_pred_clf sul sample 
                 p_first_half = clf_prob[0][0]
                 p_second_half = clf_prob[0][1]
@@ -448,20 +448,19 @@ class iCaRL() :
                 new_dots = torch.zeros(dots.size(0)).to('cpu')
                 # multiply prob by clf_prob
                 for i,el in enumerate(dots) : 
-                    if i < 5: 
-                        print(el)
+                    if i < 5:
                         new_dots[i] = WEIGHT*p_first_half*el
-                        print(el)
                     else : 
-                        print(el)
                         new_dots[i] = WEIGHT*p_second_half*el
-                        print(el)
-                
-                print(dots)
-                print(new_dots)
 
-                sys.exit()
-                y_pred = torch.argmax(dots).item()
+                #sys.exit()
+                y_pred = torch.argmax(new_dots).item()
+                y_pred_try = torch.argmax(dots).item()
+                if y_pred not y_pred_try  :
+                    print("*************************************************************************************************************************")
+                    print(dots)
+                    print(new_dots)
+                    print(f"dots: {y_pred_try}, new = {y_pred} (true label={label[i]})")
                 if y_pred == labels[i] : 
                     running_corrects+=1
 
