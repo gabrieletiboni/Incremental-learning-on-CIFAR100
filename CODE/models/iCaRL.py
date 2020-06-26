@@ -7,6 +7,10 @@ import math
 import random
 from .ablation_losses import *
 
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+
 from torch.utils.data import Subset
 import torch.nn as nn
 
@@ -395,7 +399,7 @@ class iCaRL() :
         return loss
 
     # VARIATION MIA
-    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, display=True, suffix=''):
+    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, use_scaler=False, display=True, suffix=''):
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
@@ -421,7 +425,7 @@ class iCaRL() :
 
                 
                 feaures_cpu = features.to('cpu')
-                if scaler :
+                if use_scaler :
                     feaures_cpu = scaler.transform(feaures_cpu)
 
                 y_pred = clf.predict(feaures_cpu)
