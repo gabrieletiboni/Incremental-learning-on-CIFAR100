@@ -177,7 +177,7 @@ class iCaRL() :
             #print(self.means_of_each_class[:5,:])
         return
 
-    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2) :
+    def bce_loss_with_logits(self, net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=2, k_dinamico=False, k_dinamico_var='standard') :
 
         # Forward pass to the network
         outputs = net(images)
@@ -199,8 +199,12 @@ class iCaRL() :
         else : 
             raise RuntimeError("Scegliere una variante opportuna bce_loss_with_logits\n varianti 1 2 3")
 
+
+        if k_dinamico:
+            if k_dinamico_var not in ['standard', 'class', 'classFurba', 'classMetà']:
+                raise RuntimeError('Non hai passato un valido tipo di k_dinamico_var')
+
         if starting_label == 0:
-            #targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
             # one hot encoding
             for i in range(self.batch_size):
@@ -208,7 +212,6 @@ class iCaRL() :
             
             targets_bce = targets_bce.to(self.device)
 
-            #loss = criterion(outputs[:, 0:ending_label], targets_bce)
             loss = criterion(outputs[:, 0:ending_label], targets_bce)/DIV
         else:
             # calcoliamo i vecchi output con la vecchia rete
@@ -218,13 +221,79 @@ class iCaRL() :
                 sigmoids_old = torch.sigmoid(outputs_old[:,0:starting_label])
 
             targets_bce = torch.zeros([self.batch_size, ending_label], dtype=torch.float32)
-            for i in range(self.batch_size): 
-#                 if labels[i] in current_classes:
-#                     targets_bce[i,0:starting_label] = sigmoids_old[i]
-#                     targets_bce[i][labels[i]] = 1.
-#                 else:
-#                     # Classification
-#                     targets_bce[i][labels[i]] = 1.
+            for i in range(self.batch_size):
+                if k_dinamico:
+                    # OUR VARIATION
+
+                    if k_dinamico_var == 'standard':
+                        # STANDARD
+                        if labels[i] in current_classes:
+                            targets_bce[i][labels[i]] = 1.
+
+                        targets_bce[i,0:starting_label] = sigmoids_old[i]
+
+
+                    elif k_dinamico_var == 'class':
+                        # EXEMPLARS USED IN CLASSIFICATION (no distillation for exemplars)
+                        if labels[i] in current_classes:
+                            targets_bce[i,0:starting_label] = sigmoids_old[i]
+                            targets_bce[i][labels[i]] = 1.
+                        else:
+                            targets_bce[i][labels[i]] = 1.
+
+
+                    elif k_dinamico_var == 'classFurba':
+                        # Exemplars used in classification nel loro batch, e in distillation su quelli precedenti
+                        if labels[i] in current_classes:
+                            targets_bce[i,0:starting_label] = sigmoids_old[i]
+                            targets_bce[i][labels[i]] = 1.
+                        else:
+                            targets_bce[i][labels[i]] = 1.
+                            starting_label_curr = math.floor(labels[i]/10)*10 # starting label di questo exemplar
+
+                            if starting_label_curr >= 10:
+                                targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
+                                # targets_bce[i][labels[i]] = 1.
+
+                            # else:
+                            #     # Exemplars delle prime 10 classi
+                            #     # targets_bce[i][labels[i]] = 1.
+                            #     targets_bce[i,0:starting_label] = sigmoids_old[i]
+
+                    elif k_dinamico_var == 'classMetà':
+                        # Exemplars usati fino a metà per classification, e dopo tutti con distillation
+
+                        if starting_label >=50:
+                            #print('SECONDA META')
+                            if labels[i] in current_classes:
+                                targets_bce[i][labels[i]] = 1.
+                            targets_bce[i,0:starting_label] = sigmoids_old[i]
+                        else:
+                            #print('PRIMA META')
+                            if labels[i] in current_classes:
+                                targets_bce[i,0:starting_label] = sigmoids_old[i]
+                                targets_bce[i][labels[i]] = 1.
+                            else:
+                                targets_bce[i][labels[i]] = 1.
+
+
+                    else:
+                        raise RuntimeError("Errore inaspettato nel k_dinamico_var")
+
+
+                # NO VARIATION
+                else:
+                    if labels[i] in current_classes:
+                        targets_bce[i][labels[i]] = 1.
+
+                    targets_bce[i,0:starting_label] = sigmoids_old[i]
+
+                # if labels[i] in current_classes:
+                #     targets_bce[i,0:starting_label] = sigmoids_old[i]
+                #     targets_bce[i][labels[i]] = 1.
+                # else:
+                #     # Classification
+                #     targets_bce[i][labels[i]] = 1.
                 
                 # ---- Classification furba (che fanno distillation sulle classi più vecchie di loro)  
 #                 else:
@@ -233,10 +302,10 @@ class iCaRL() :
 #                     if starting_label_curr >= 10:
 #                         targets_bce[i,0:starting_label_curr] = sigmoids_old[i, 0:starting_label_curr]
 #                         targets_bce[i][labels[i]] = 1.
-##                     else:
-##                         # Exemplars delle prime 10 classi
-##                         # targets_bce[i][labels[i]] = 1.
-##                         targets_bce[i,0:starting_label] = sigmoids_old[i]
+# #                     else:
+# #                         # Exemplars delle prime 10 classi
+# #                         # targets_bce[i][labels[i]] = 1.
+# #                         targets_bce[i,0:starting_label] = sigmoids_old[i]
 
                 # targets_bce[i,0:starting_label] = sigmoids_old[i]
                 # targets_bce[i][labels[i]] = 1.
@@ -245,18 +314,18 @@ class iCaRL() :
 #                 targets_bce[i,0:starting_label] = sigmoids_old[i]
                 
                 # ClassificazionePerMetà
-                if starting_label >=50:
-                    #print('SECONDA META')
-                    if labels[i] in current_classes:
-                        targets_bce[i][labels[i]] = 1.
-                    targets_bce[i,0:starting_label] = sigmoids_old[i]
-                else:
-                    #print('prima metà')
-                    if labels[i] in current_classes:
-                        targets_bce[i,0:starting_label] = sigmoids_old[i]
-                        targets_bce[i][labels[i]] = 1.
-                    else:
-                        targets_bce[i][labels[i]] = 1.
+                # if starting_label >=50:
+                #     #print('SECONDA META')
+                #     if labels[i] in current_classes:
+                #         targets_bce[i][labels[i]] = 1.
+                #     targets_bce[i,0:starting_label] = sigmoids_old[i]
+                # else:
+                #     #print('prima metà')
+                #     if labels[i] in current_classes:
+                #         targets_bce[i,0:starting_label] = sigmoids_old[i]
+                #         targets_bce[i][labels[i]] = 1.
+                #     else:
+                #         targets_bce[i][labels[i]] = 1.
                 
 
             targets_bce = targets_bce.to(self.device)
@@ -292,7 +361,7 @@ class iCaRL() :
 
         return accuracy_eval
 
-    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100) :
+    def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100, k_dinamico=False, k_dinamico_var='standard') :
         FIRST = True
         ###net.train() # Sets module in training mode (lo facciamo già nel main di iCaRL)
 
@@ -305,7 +374,7 @@ class iCaRL() :
             optimizer.zero_grad() # Zero-ing the gradients
             
             if loss_type == 'bce':
-                loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var)            
+                loss = self.bce_loss_with_logits(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, bce_var=bce_var, k_dinamico=k_dinamico, k_dinamico_var=k_dinamico_var)            
             elif loss_type == 'ce_l2':
                 loss = CE_L2_loss(net, net_old, criterion, images, labels, current_classes, starting_label, ending_label, distillation_weight=1, outputs_normalization='sigmoid', alpha=alpha)
             elif loss_type == 'l2_l2':
@@ -325,52 +394,4 @@ class iCaRL() :
 
         return loss
 
-    # VARIATION ROBY
-    def eval_model_variation(net, test_dataloader, dataset_length, clf=None, display=True, suffix=''):
-
-        if clf == None:
-           raise RuntimeError('Errore clf non passato/fittato')
-
-        running_corrects = 0
-        for images,labels in test_dataloader:
-            # Bring data over the device of choice
-            images = images.to(self.device)
-            labels = labels.to(self.device)
-
-            net.train(False)
-
-            # feature map (custom)
-            features = net.feature_map(images)
-
-            # normalization
-            features = self.L2_norm(features)
-
-            for i,sample in enumerate(features):
-                dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
-                print(dots)
-                print(dots.size())
-
-                
-                feaures_cpu = features.to('cpu')
-                if scaler :
-                    feaures_cpu = scaler.transform(feaures_cpu)
-
-                y_pred = clf.predict(feaures_cpu)
-
-                print("**** probabilities classes: 0,1 ****")
-                print(clf.predict_proba(feaures_cpu))
-                # multiply prob by clf prob
-                # ...
-
-                sys.exit()
-                y_pred = torch.argmax(dots).item()
-                if y_pred == labels[i] : 
-                    running_corrects+=1
-
-        accuracy_eval = running_corrects / float(dataset_length)
-
-        if display :    
-            print('Accuracy on eval variation: ', accuracy_eval)
-
-        return accuracy_eval
 
