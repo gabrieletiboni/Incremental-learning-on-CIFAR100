@@ -399,7 +399,7 @@ class iCaRL() :
         return loss
 
     # VARIATION MIA
-    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, use_scaler=False, display=True, suffix=''):
+    def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix=''):
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
