@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+variation_roby_complete,2.0,5,128,1e-05
