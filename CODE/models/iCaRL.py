@@ -420,6 +420,7 @@ class iCaRL() :
     ##### VARIATION roby ------
     def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix='', impact=1):
         WEIGHT = impact
+        softmax = torch.nn.Softmax(dim=-1)
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
@@ -445,6 +446,11 @@ class iCaRL() :
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 #print(dots)
                 #sys.exit()
+
+                ## PROVA CON SOFTMAX
+                print(dots)
+                dots_norm = softmax(dots)
+                print(dots_norm)
 
                 sample_cpu = sample.to('cpu')
                 # print(sample_cpu)
