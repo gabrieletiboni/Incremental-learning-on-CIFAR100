@@ -495,4 +495,88 @@ class iCaRL() :
             print(f"--- Correctly classified per modifica mia: {correctly_classified_per_modifica} / {dataset_length} samples") 
 
         return accuracy_eval
+
+    # def eval_model_var_cosine(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix='', impact=1):
+    #     WEIGHT = impact
+
+    #     if clf == None:
+    #        raise RuntimeError('Errore clf non passato/fittato')
+
+    #     running_corrects = 0
+    #     correctly_classified_per_modifica = 0
+    #     missclassified_per_modifica = 0
+    #     for images,labels in test_dataloader:
+    #         # Bring data over the device of choice
+    #         images = images.to(self.device)
+    #         labels = labels.to(self.device)
+
+    #         net.train(False)
+
+    #         # Forward Pass
+    #         outputs = net(images)
+    #         # output della cosine (già norm)
+
+    #         # # Get predictions
+    #         # _, preds = torch.max(outputs[:, 0:ending_label].data, 1)
+
+    #         # # Update Corrects
+    #         # running_corrects_eval += torch.sum(preds == labels.data).data.item()
+
+    #         for i,sample in enumerate(outputs):
+    #             # dots contiene le i cosine (valori tra -1 e +1) che il sample appartenga alla classe
+    #             dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
+    #             #print(dots)
+    #             #sys.exit()
+
+    #             sample_cpu = sample.to('cpu')
+    #             # print(sample_cpu)
+                
+    #             sample_cpu = sample_cpu.reshape(1, -1)
+    #             # print(sample_cpu)
+
+    #             if use_scaler :
+    #                 sample_cpu = scaler.transform(sample_cpu)
+
+    #             # y_pred_clf = clf.predict(sample_cpu)
+    #             # print(y_pred_clf) # classe predetta
+
+    #             # print("**** probabilities classes: 0,1 ****")
+    #             clf_prob = clf.predict_proba(sample_cpu)
+    #             # print(clf_prob)
+    #             # probabilità della predizione y_pred_clf sul sample 
+    #             p_first_half = clf_prob[0][0]
+    #             p_second_half = clf_prob[0][1]
+
+    #             new_dots = torch.zeros(dots.size(0)).to('cpu')
+
+    #             # multiply prob by clf_prob
+    #             for j,el in enumerate(dots) : 
+    #                 if j < 5:
+    #                     new_dots[j] = WEIGHT*p_first_half*el
+    #                 else : 
+    #                     new_dots[j] = WEIGHT*p_second_half*el
+
+    #             y_pred_old_dots = torch.argmax(dots).item()
+    #             y_pred = torch.argmax(new_dots).item()
+    #             if y_pred != y_pred_old_dots :
+    #                 # print(dots)
+    #                 # print(new_dots)
+    #                 # print(f"dots: {y_pred_old_dots}, new = {y_pred} (true label={labels[i]})")
+    #                 if y_pred_old_dots == labels[i] : 
+    #                     missclassified_per_modifica +=1
+    #                 if y_pred == labels[i] : 
+    #                     correctly_classified_per_modifica +=1
+    #             if y_pred == labels[i] : 
+    #                 running_corrects+=1
+
+    #     # Calculate Accuracy
+    #     accuracy_eval = running_corrects / float(dataset_length)
+
+    #     if display :    
+    #         print('Accuracy on eval variation mia: ', accuracy_eval)
+    #         print(f"--- Misclassified per modifica mia: {missclassified_per_modifica} / {dataset_length} samples") 
+    #         print(f"--- Correctly classified per modifica mia: {correctly_classified_per_modifica} / {dataset_length} samples") 
+
+    #     return accuracy_eval
+
 # ---- end variation roby
