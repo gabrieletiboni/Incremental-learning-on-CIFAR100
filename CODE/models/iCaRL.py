@@ -425,6 +425,8 @@ class iCaRL() :
            raise RuntimeError('Errore clf non passato/fittato')
 
         running_corrects = 0
+        correctly_classified_per_modifica = 0
+        missclassified_per_modifica = 0
         for images,labels in test_dataloader:
             # Bring data over the device of choice
             images = images.to(self.device)
@@ -438,8 +440,6 @@ class iCaRL() :
             # normalization
             features = self.L2_norm(features)
             
-            correctly_classified_per_modifica = 0
-            missclassified_per_modifica = 0
             for i,sample in enumerate(features):
                 # dots contiene le i cosine (valori tra -1 e +1) che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
