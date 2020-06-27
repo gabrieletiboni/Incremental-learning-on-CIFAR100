@@ -467,12 +467,11 @@ class iCaRL() :
                         new_dots[i] = WEIGHT*p_first_half*el
                     else : 
                         new_dots[i] = WEIGHT*p_second_half*el
-
                 #sys.exit()
+
                 y_pred = torch.argmax(new_dots).item()
                 y_pred_old_dots = torch.argmax(dots).item()
                 if y_pred != y_pred_old_dots :
-                    #print("*************************************************************************************************************************")
                     # print(dots)
                     # print(new_dots)
                     #print(f"dots: {y_pred_old_dots}, new = {y_pred} (true label={labels[i]})")
