@@ -444,6 +444,7 @@ class iCaRL() :
                 # dots contiene le i cosine (valori tra -1 e +1) che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
                 print(dots)
+                sys.exit()
 
                 sample_cpu = sample.to('cpu')
                 # print(sample_cpu)
