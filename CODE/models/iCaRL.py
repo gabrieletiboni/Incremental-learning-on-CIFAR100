@@ -7,12 +7,16 @@ import math
 import random
 from .ablation_losses import *
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-
 from torch.utils.data import Subset
 import torch.nn as nn
+
+# Variation Robi
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDClassifier
+from sklearn.svm import SVC, LinearSVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+# ---- end variation roby
 
 class iCaRL() :
 
@@ -413,7 +417,7 @@ class iCaRL() :
 
         return loss
 
-    # VARIATION MIA
+    ##### VARIATION roby ------
     def eval_model_variation(self, net, test_dataloader, dataset_length, clf=None, scaler=None, use_scaler=False, display=True, suffix='', impact=1):
         WEIGHT = impact
 
@@ -437,9 +441,9 @@ class iCaRL() :
             correctly_classified_per_modifica = 0
             missclassified_per_modifica = 0
             for i,sample in enumerate(features):
-                # dots contiene le probabilità che il sample appartenga alla classe
+                # dots contiene le i cosine (valori tra -1 e +1) che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
-                # print(dots)
+                print(dots)
 
                 sample_cpu = sample.to('cpu')
                 # print(sample_cpu)
@@ -450,7 +454,7 @@ class iCaRL() :
                 if use_scaler :
                     sample_cpu = scaler.transform(sample_cpu)
 
-                y_pred_clf = clf.predict(sample_cpu)
+                # y_pred_clf = clf.predict(sample_cpu)
                 # print(y_pred_clf) # classe predetta
 
                 # print("**** probabilities classes: 0,1 ****")
@@ -461,20 +465,20 @@ class iCaRL() :
                 p_second_half = clf_prob[0][1]
 
                 new_dots = torch.zeros(dots.size(0)).to('cpu')
-                # multiply prob by clf_prob
-                for i,el in enumerate(dots) : 
-                    if i < 5:
-                        new_dots[i] = WEIGHT*p_first_half*el
-                    else : 
-                        new_dots[i] = WEIGHT*p_second_half*el
-                #sys.exit()
 
-                y_pred = torch.argmax(new_dots).item()
+                # multiply prob by clf_prob
+                for j,el in enumerate(dots) : 
+                    if j < 5:
+                        new_dots[j] = WEIGHT*p_first_half*el
+                    else : 
+                        new_dots[j] = WEIGHT*p_second_half*el
+
                 y_pred_old_dots = torch.argmax(dots).item()
+                y_pred = torch.argmax(new_dots).item()
                 if y_pred != y_pred_old_dots :
                     # print(dots)
                     # print(new_dots)
-                    #print(f"dots: {y_pred_old_dots}, new = {y_pred} (true label={labels[i]})")
+                    # print(f"dots: {y_pred_old_dots}, new = {y_pred} (true label={labels[i]})")
                     if y_pred_old_dots == labels[i] : 
                         missclassified_per_modifica +=1
                     if y_pred == labels[i] : 
@@ -486,8 +490,8 @@ class iCaRL() :
 
         if display :    
             print('Accuracy on eval variation mia: ', accuracy_eval)
-            print(f"Misclassified per modifica mia: {missclassified_per_modifica} on {dataset_length} samples") 
-            print(f"Correctly classified per modifica mia: {correctly_classified_per_modifica} on {dataset_length} samples") 
-            
+            print(f"--- Misclassified per modifica mia: {missclassified_per_modifica} / {dataset_length} samples") 
+            print(f"--- Correctly classified per modifica mia: {correctly_classified_per_modifica} / {dataset_length} samples") 
 
         return accuracy_eval
+# ---- end variation roby
