@@ -424,7 +424,7 @@ class iCaRL() :
 
         if clf == None:
            raise RuntimeError('Errore clf non passato/fittato')
-
+        count=0
         running_corrects = 0
         correctly_classified_per_modifica = 0
         missclassified_per_modifica = 0
@@ -441,6 +441,7 @@ class iCaRL() :
             # normalization
             features = self.L2_norm(features)
             
+            
             for i,sample in enumerate(features):
                 # dots contiene le i cosine (valori tra -1 e +1) che il sample appartenga alla classe
                 dots = torch.tensor([torch.dot(mean, sample).data for mean in self.means_of_each_class])
@@ -448,9 +449,13 @@ class iCaRL() :
                 #sys.exit()
 
                 ## PROVA CON SOFTMAX
-                print(dots)
-                dots_norm = softmax(dots)
-                print(dots_norm)
+                if count < 5:
+                    print("pre: ")
+                    print(dots)
+                    dots_norm = softmax(dots)
+                    print("post: ")
+                    print(dots_norm)
+                    count+=1
 
                 sample_cpu = sample.to('cpu')
                 # print(sample_cpu)
