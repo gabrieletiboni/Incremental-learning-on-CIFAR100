@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+classMetà_2500_boost _ linear 2,2.0,3,128,1e-05
