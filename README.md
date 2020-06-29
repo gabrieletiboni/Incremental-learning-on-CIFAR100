@@ -8,7 +8,7 @@ Reproduction of the state-of-the-art algorithms for incremental learning in imag
 
 ### Useful link
 
-- colab
+- colabs
 
 ---
 
