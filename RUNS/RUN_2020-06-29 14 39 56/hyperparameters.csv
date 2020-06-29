@@ -1,0 +1,2 @@
+Method,LR,num_epochs,batch_size,weight_decay
+classMetà_3000_step _ linear 1,2.0,70,128,1e-05
