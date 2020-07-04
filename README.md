@@ -14,4 +14,4 @@ _Reproduction of the state-of-the-art algorithms for incremental learning in ima
 
 ### References
 
-[1] insert papers
+[1] add papers
