@@ -20,20 +20,11 @@ Reproduction of the state-of-the-art algorithms for incremental learning in imag
 (relu). ArXiv, abs/1803.08375, 2018.
 [2] Rich Caruana. Multitask learning. Mach. Learn.,
 28(1):41–75, July 1997.
-
 [3] Ross B. Girshick, Jeff Donahue, Trevor Darrell, and Jagan-
 nath Malik. Rich feature hierarchies for accurate object de-
-tection and semantic segmentation. 2014 IEEE Conference
-
-on Computer Vision and Pattern Recognition, pages 580–
-587, 2014.
-[4] Ian J. Goodfellow, Mehdi Mirza, Xia Da, Aaron C.
-Courville, and Yoshua Bengio. An empirical investigation
-of catastrophic forgeting in gradient-based neural networks.
-CoRR, abs/1312.6211, 2014.
-[5] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian
-Sun. Deep residual learning for image recognition. CoRR,
-abs/1512.03385, 2015.
+tection and semantic segmentation. 2014 IEEE Conference on Computer Vision and Pattern Recognition, pages 580–587, 2014.
+[4] Ian J. Goodfellow, Mehdi Mirza, Xia Da, Aaron C. Courville, and Yoshua Bengio. An empirical investigation of catastrophic forgeting in gradient-based neural networks. CoRR, abs/1312.6211, 2014.
+[5] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. CoRR, abs/1512.03385, 2015.
 [6] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 
 Delving deep into rectifiers: Surpassing human-level perfor-
