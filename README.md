@@ -1,6 +1,7 @@
 # Incremental Learning on Image Recognition
 
 #### Abstract
+
 <p align="justify">
 Reproduction of the state-of-the-art algorithms for incremental learning in image recognition and proposal of new variants. Recent studies in machine learning aim at developing models that are able to incrementally learn new concepts over time with minimal effort in terms of resource usage. In this work, we recall and reproduce from scratch two of the most popular approaches to this problem (”Learning without forgetting” and ”iCaRL”) and we conduct an in-depth ablation study on the previous methods. We finally propose a variation that exploits an implicit hysteresis effect of the network when storing a dynamic number of samples from old classes throughout the incremental learning process, which allows to consistently increase the average performances without varying the overall resource overhead.
 </p>
@@ -9,8 +10,8 @@ Reproduction of the state-of-the-art algorithms for incremental learning in imag
 
 #### Useful resources:
 
-- [Full Report](https://github.com/gabrieletiboni/Incremental-learning-on-CIFAR100/blob/master/Final%20Report.pdf)
-- [Code (Colab notebooks)](https://drive.google.com/drive/folders/1PhFk0I-ATx7TJkocvtKq2v2WNHYrkXWM?usp=sharing)
+- [Report](https://github.com/gabrieletiboni/Incremental-learning-on-CIFAR100/blob/master/Final%20Report.pdf)
+- [Code (colab)](https://drive.google.com/drive/folders/1PhFk0I-ATx7TJkocvtKq2v2WNHYrkXWM?usp=sharing)
 - [Results (spreadsheet)](https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing)
 
 ---
