@@ -9,9 +9,9 @@ Reproduction of the state-of-the-art algorithms for incremental learning in imag
 
 #### Useful resources:
 
-- [Colab Notebooks](https://drive.google.com/drive/folders/1PhFk0I-ATx7TJkocvtKq2v2WNHYrkXWM?usp=sharing)
-- [Results](https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing)
-- [Full Report]()
+- [Full Report](https://github.com/gabrieletiboni/Incremental-learning-on-CIFAR100/blob/master/Final%20Report.pdf)
+- [Code (Colab notebooks)](https://drive.google.com/drive/folders/1PhFk0I-ATx7TJkocvtKq2v2WNHYrkXWM?usp=sharing)
+- [Results (spreadsheet)](https://docs.google.com/spreadsheets/d/1lxrz5nrHcYjzODCsvCoGal30N-beyxo3r65X9YPig6E/edit?usp=sharing)
 
 ---
 
