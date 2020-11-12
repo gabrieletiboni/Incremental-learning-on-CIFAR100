@@ -383,6 +383,146 @@ class iCaRL() :
             print('Accuracy on eval NME'+str(suffix)+':', accuracy_eval)
 
         return accuracy_eval
+    
+    def eval_model_KNN(self, net, KNN_dataloader, test_dataloader, dataset_length, display=True, suffix='', k=5):
+
+        X_train = []
+        y_train = []
+        
+        for images,labels in KNN_dataloader:
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            net.train(False)
+
+            # feature map (custom)
+            features = net.feature_map(images)
+
+            # normalization
+            #features = self.L2_norm(features)
+
+            for f in features:
+              f = f.to('cpu')
+              X_train.append(f.numpy())
+
+            for l in labels:
+              l = l.to('cpu')
+              y_train.append(l.numpy())
+
+        KNN = KNeighborsClassifier(n_neighbors=k)
+        KNN.fit(X_train, y_train)
+
+        X_test = []
+        y_test = []
+
+        running_corrects = 0
+        for images,labels in test_dataloader:
+            # Bring data over the device of choice
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            net.train(False)
+
+            # feature map (custom)
+            features = net.feature_map(images)
+
+            # normalization
+            #features = self.L2_norm(features)
+
+            for f in features:
+              f = f.to('cpu')
+              X_test.append(f.numpy())
+
+            for l in labels:
+              l = l.to('cpu')
+              y_test.append(l.numpy())
+
+        y_pred = KNN.predict(X_test)
+        accuracy_KNN = metrics.accuracy_score(y_test, y_pred)
+
+        if display :    
+            print('Accuracy on eval (KNN)'+str(suffix)+':', accuracy_KNN)
+
+        return accuracy_KNN
+    
+    def eval_model_MLP(self, net, MLP_dataloader, test_dataloader, dataset_length, display=True, suffix='', lr=0.001, bs=128, momentum=0.9, wd=1e-5, num_epochs=30, step_size=20, gamma=0.1, nc=100):
+        
+        MLP_classifier = MLP(num_classes=nc)
+        MLP_criterion = nn.CrossEntropyLoss()
+
+        for p in MLP_classifier.parameters():
+          p.requires_grad = True
+       
+        parameters_to_optimize = MLP_classifier.parameters() 
+        #MLP_criterion = nn.BCEWithLogitsLoss(reduction='mean')
+        MLP_optimizer = optim.SGD(parameters_to_optimize, lr=lr, momentum=momentum, weight_decay=wd)
+
+        MLP_scheduler = optim.lr_scheduler.StepLR(MLP_optimizer, step_size, gamma=gamma)
+        
+        MLP_classifier = MLP_classifier.to(self.device)
+
+        cudnn.benchmark # Calling this optimizes runtime
+
+        MLP_classifier.train(True)
+      
+        for epoch in range(num_epochs):
+        
+          for images,labels in MLP_dataloader:
+              images = images.to(self.device)
+              labels = labels.to(self.device)
+
+               # feature map (custom)
+              features = net.feature_map(images)
+
+              # normalization
+              #features = self.L2_norm(features)
+
+              MLP_optimizer.zero_grad()
+
+              with torch.set_grad_enabled(True):
+
+                outputs = MLP_classifier(features)
+                loss = MLP_criterion(outputs, labels)
+                loss.backward()
+                MLP_optimizer.step()
+          
+          MLP_scheduler.step()
+
+        MLP_classifier.train(False)
+
+        running_corrects = 0
+        test_size = 0
+        for images,labels in test_dataloader:
+            # Bring data over the device of choice
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+
+            # feature map (custom)
+            features = net.feature_map(images)
+
+            # normalization
+            #features = self.L2_norm(features)
+
+            # Forward Pass
+            outputs = MLP_classifier(features)
+
+            # Get predictions
+            _, preds = torch.max(outputs.data, 1)
+
+            # Update Corrects
+            running_corrects += torch.sum(preds == labels.data).data.item()
+
+            test_size += labels.size(0)
+
+        # Calculate Accuracy
+        accuracy_MLP = running_corrects / float(test_size)
+        accuracy_MLP_check = running_corrects / float(dataset_length)
+
+        if display :    
+            print('Accuracy on eval (MLP)'+str(suffix)+':', accuracy_MLP)
+            print('Accuracy on eval (MLP) check'+str(suffix)+':', accuracy_MLP_check)
+
+        return accuracy_MLP
 
     def update_representation(self, net, net_old, train_dataloader_cum_exemplars, criterion, optimizer, current_classes, starting_label, ending_label, current_step, bce_var=1, loss_type='bce', alpha=100, k_dinamico=False, k_dinamico_var='standard', boost_until_included=None) :
         FIRST = True
