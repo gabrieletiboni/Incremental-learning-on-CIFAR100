@@ -1,4 +1,4 @@
-# Incremental Learning on Image Recognition
+# Class-Incremental Learning on Image Recognition
 
 #### Abstract
 
